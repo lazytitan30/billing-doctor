@@ -1,0 +1,13 @@
+{
+  "findings": [
+    {
+      "ruleId": "D10",
+      "severity": "medium",
+      "confidence": "certain",
+      "evidence": [
+        1,
+        2
+      ]
+    }
+  ]
+}

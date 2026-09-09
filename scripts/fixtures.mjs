@@ -5,6 +5,7 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { makeFixtures as makeDG } from './fixtures-DG.mjs';
 
 const SCHEMA = 'billing-doctor-timeline/1';
 const ACTIVE = 'SUBSCRIPTION_STATE_ACTIVE';
@@ -40,6 +41,7 @@ const PRODUCTS = {
   explorer_prepaid: 'subscription',
   gems_100: 'consumable',
   pack_deluxe: 'non-consumable',
+  addon_extra: 'subscription',
 };
 
 function timeline(events, extra = {}) {
@@ -70,7 +72,7 @@ const get = (token, t, o = {}) => {
   const event = {
     t,
     kind: 'api',
-    call: 'subscriptionsv2.get',
+    call: o.call ?? 'subscriptionsv2.get',
     token,
     status: o.status ?? 200,
     subscriptionState: o.state ?? ACTIVE,
@@ -377,6 +379,11 @@ rules['C7-test-notification-applied'] = {
   ]),
   expected: expect('C7', 'low', 'certain', [8, 9]),
 };
+
+Object.assign(
+  rules,
+  makeDG({ timeline, purchase, get, productGet, api, ledger, grant, rtdn, voided, support, opening, at, expect, SEC, MIN, HOUR, DAY, S, E, ACTIVE, GRACE, CANCELED, ON_HOLD, PAUSED, EXPIRED, PENDING_ACK }),
+);
 
 // ---- clean fixtures -------------------------------------------------------------------------
 

@@ -1,0 +1,131 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "explorer": "subscription",
+      "master": "subscription",
+      "explorer_prepaid": "subscription",
+      "gems_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_c1",
+      "productId": "gems_100",
+      "purchaseState": "PURCHASED",
+      "obfuscatedAccountId": "hm_1",
+      "quantity": 3
+    },
+    {
+      "t": "2026-09-01T10:00:02Z",
+      "kind": "api",
+      "call": "productsv2.get",
+      "token": "tok_c1",
+      "status": 200,
+      "productId": "gems_100",
+      "purchaseState": "PURCHASED",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+      "quantity": 3
+    },
+    {
+      "t": "2026-09-01T10:00:03Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_c1",
+      "userId": "u_1",
+      "tier": "gems",
+      "idempotencyKey": "tok_c1:grant"
+    },
+    {
+      "t": "2026-09-01T10:00:04Z",
+      "kind": "api",
+      "call": "products.consume",
+      "token": "tok_c1",
+      "status": 200
+    },
+    {
+      "t": "2026-09-01T10:00:05Z",
+      "kind": "ledger",
+      "op": "consume",
+      "token": "tok_c1"
+    },
+    {
+      "t": "2026-09-03T10:00:00Z",
+      "kind": "rtdn",
+      "notification": "voidedPurchase",
+      "messageId": "m-2",
+      "eventTimeMillis": 1788429600000,
+      "token": "tok_c1",
+      "refundType": 2,
+      "productType": 2,
+      "orderId": "GPA.0000-0000-0000-00000",
+      "endpointStatus": 200
+    },
+    {
+      "t": "2026-09-03T10:00:01Z",
+      "kind": "api",
+      "call": "productsv2.get",
+      "token": "tok_c1",
+      "status": 200,
+      "productId": "gems_100",
+      "purchaseState": "PURCHASED",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+      "quantity": 3,
+      "refundableQuantity": 2
+    },
+    {
+      "t": "2026-09-03T10:00:02Z",
+      "kind": "ledger",
+      "op": "revoke",
+      "token": "tok_c1",
+      "messageId": "m-2"
+    }
+  ]
+}

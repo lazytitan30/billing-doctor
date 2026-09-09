@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "ruleId": "F4",
+      "severity": "medium",
+      "confidence": "certain",
+      "evidence": [
+        9,
+        10,
+        12
+      ]
+    }
+  ]
+}

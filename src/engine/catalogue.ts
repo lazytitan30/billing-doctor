@@ -18,6 +18,32 @@ import { C4 } from './rules/C4.js';
 import { C5 } from './rules/C5.js';
 import { C6 } from './rules/C6.js';
 import { C7 } from './rules/C7.js';
+import { D1 } from './rules/D1.js';
+import { D2 } from './rules/D2.js';
+import { D3 } from './rules/D3.js';
+import { D4 } from './rules/D4.js';
+import { D5 } from './rules/D5.js';
+import { D6 } from './rules/D6.js';
+import { D7 } from './rules/D7.js';
+import { D8 } from './rules/D8.js';
+import { D9 } from './rules/D9.js';
+import { D10 } from './rules/D10.js';
+import { E1 } from './rules/E1.js';
+import { E2 } from './rules/E2.js';
+import { E3 } from './rules/E3.js';
+import { E4 } from './rules/E4.js';
+import { E5 } from './rules/E5.js';
+import { E6 } from './rules/E6.js';
+import { F1 } from './rules/F1.js';
+import { F2 } from './rules/F2.js';
+import { F3 } from './rules/F3.js';
+import { F4 } from './rules/F4.js';
+import { G1 } from './rules/G1.js';
+import { G2 } from './rules/G2.js';
+import { G3 } from './rules/G3.js';
+import { G4 } from './rules/G4.js';
+import { G5 } from './rules/G5.js';
+import { G6 } from './rules/G6.js';
 
 export const GROUPS: Record<string, string> = {
   A: 'Configuration and permissions',
@@ -32,7 +58,14 @@ export const GROUPS: Record<string, string> = {
   J: 'Ledger integrity, retention, redaction',
 };
 
-export const RULES: Rule[] = [B1, B2, B3, B4, B5, B6, B7, B8, B9, C1, C2, C3, C4, C5, C6, C7];
+export const RULES: Rule[] = [
+  B1, B2, B3, B4, B5, B6, B7, B8, B9,
+  C1, C2, C3, C4, C5, C6, C7,
+  D1, D2, D3, D4, D5, D6, D7, D8, D9, D10,
+  E1, E2, E3, E4, E5, E6,
+  F1, F2, F3, F4,
+  G1, G2, G3, G4, G5, G6,
+];
 
 export function ruleById(id: string): Rule | undefined {
   return RULES.find((rule) => rule.id === id.toUpperCase());

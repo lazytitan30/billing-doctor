@@ -44,7 +44,9 @@ export function diagnose(input: Timeline | NormalizedTimeline, options: Diagnose
         ruleId: rule.id,
         severity: hit.severity ?? rule.severity,
         title: rule.title,
-        evidence: hit.evidence,
+        // Ascending, so a reader can scan the file top to bottom; the
+        // mechanism text tells the story in order.
+        evidence: [...hit.evidence].sort((a, b) => a - b),
         mechanism: hit.mechanism,
         googleRule: googleRule(rule.id),
         fix: `runbook:${rule.id}`,
