@@ -8,6 +8,7 @@ import { runInit } from './commands/init.js';
 import { runValidate } from './commands/validate.js';
 import { runRtdn } from './commands/rtdn.js';
 import { runState } from './commands/state.js';
+import { runDiagnose } from './commands/diagnose.js';
 
 const USAGE = `billing-doctor ${VERSION}: incident diagnosis for Google Play Billing integrations.
 Runs locally, calls nothing, changes nothing at Google. Not affiliated with Google.
@@ -15,6 +16,7 @@ Runs locally, calls nothing, changes nothing at Google. Not affiliated with Goog
 Usage: billing-doctor <command> [options]
 
 Commands:
+  diagnose    run every rule over a timeline and print the findings (exit 1 on a high finding)
   init        write an empty timeline with the policy block filled from questions
   validate    check a timeline file against the schema
   state       explain a purchases.subscriptionsv2 resource in plain words
@@ -25,6 +27,8 @@ Run billing-doctor <command> --help for the options of one command.`;
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
   switch (command) {
+    case 'diagnose':
+      return runDiagnose(rest);
     case 'init':
       return runInit(rest);
     case 'validate':

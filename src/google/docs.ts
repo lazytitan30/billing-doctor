@@ -174,7 +174,7 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
     quote:
       'Prepaid plans with a duration of one week or longer must be acknowledged within three days. Prepaid plans with a duration shorter than one week must be acknowledged within half the plan duration.',
     context:
-      'The page warns: "If a user on a prepaid plan purchases a top-up, and you do not acknowledge the purchase within the corresponding period, the top-up purchase is revoked, the remaining subscription is revoked and canceled, and the user is issued a refund."',
+      'The page also says: "Both the initial purchase and any top-ups need to be acknowledged." And it warns: "If a user on a prepaid plan purchases a top-up, and you do not acknowledge the purchase within the corresponding period, the top-up purchase is revoked, the remaining subscription is revoked and canceled, and the user is issued a refund."',
     url: URLS.subscriptions,
     readOn: READ_ON,
   },
@@ -299,6 +299,8 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
   D10: {
     title: 'Subscriptions: prepaid plans',
     quote: 'Prepaid plans do not automatically renew upon expiration.',
+    context:
+      'A top-up is a new purchase: "After a top-up, the following fields in the Purchase result object are updated to reflect the most recent top-up purchase: Order ID, Purchase time, Signature, Purchase token, Acknowledged". Expect a new token that must be acknowledged, not a renewal notification.',
     url: URLS.subscriptions,
     readOn: READ_ON,
   },

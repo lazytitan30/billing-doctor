@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "ruleId": "C5",
+      "severity": "medium",
+      "confidence": "possible",
+      "evidence": [
+        8
+      ]
+    }
+  ]
+}

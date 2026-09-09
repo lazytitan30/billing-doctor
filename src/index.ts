@@ -17,6 +17,13 @@ export {
 } from './engine/timeline.js';
 export type { Timeline, TimelineEvent, NormalizedTimeline, NormalizedEvent, ValidationResult } from './engine/timeline.js';
 
+export { diagnose } from './engine/diagnose.js';
+export type { Diagnosis, DiagnoseOptions } from './engine/diagnose.js';
+export { sortFindings, exitCodeFor, formatFindings, summaryLine } from './engine/findings.js';
+export type { Finding, Severity, Confidence } from './engine/findings.js';
+export { RULES, GROUPS, ruleById } from './engine/catalogue.js';
+export type { Rule, RuleHit } from './engine/rule.js';
+
 export { decodeRtdn, describeRtdn, SUBSCRIPTION_NOTIFICATION_TYPES, ONE_TIME_NOTIFICATION_TYPES } from './google/rtdn.js';
 export type { DecodedRtdn, DeveloperNotification } from './google/rtdn.js';
 

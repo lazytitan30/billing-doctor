@@ -1,0 +1,220 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "explorer": "subscription",
+      "master": "subscription",
+      "explorer_prepaid": "subscription",
+      "gems_100": "consumable",
+      "pack_deluxe": "non-consumable"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_a1",
+      "productId": "explorer",
+      "purchaseState": "PURCHASED",
+      "obfuscatedAccountId": "hm_1"
+    },
+    {
+      "t": "2026-09-01T10:00:02Z",
+      "kind": "api",
+      "call": "subscriptionsv2.get",
+      "token": "tok_a1",
+      "status": 200,
+      "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+      "lineItems": [
+        {
+          "productId": "explorer",
+          "expiryTime": "2026-10-01T10:00:00Z",
+          "autoRenewingPlan": true
+        }
+      ],
+      "externalAccountIdentifiers": {
+        "obfuscatedExternalAccountId": "hm_1"
+      }
+    },
+    {
+      "t": "2026-09-01T10:00:03Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_a1",
+      "userId": "u_1",
+      "tier": "pro",
+      "idempotencyKey": "tok_a1:grant",
+      "expiry": "2026-10-01T10:00:00Z",
+      "expirySource": "expiryTime"
+    },
+    {
+      "t": "2026-09-01T10:00:04Z",
+      "kind": "api",
+      "call": "subscriptions.acknowledge",
+      "token": "tok_a1",
+      "status": 200
+    },
+    {
+      "t": "2026-09-01T10:00:05Z",
+      "kind": "ledger",
+      "op": "ack",
+      "token": "tok_a1"
+    },
+    {
+      "t": "2026-10-03T09:00:05Z",
+      "kind": "rtdn",
+      "messageId": "m-5",
+      "eventTimeMillis": 1791018000000,
+      "notificationType": 5,
+      "token": "tok_a1",
+      "endpointStatus": 200
+    },
+    {
+      "t": "2026-10-03T09:00:06Z",
+      "kind": "api",
+      "call": "subscriptionsv2.get",
+      "token": "tok_a1",
+      "status": 200,
+      "subscriptionState": "SUBSCRIPTION_STATE_ON_HOLD",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+      "lineItems": [
+        {
+          "productId": "explorer",
+          "expiryTime": "2026-10-01T10:00:00Z",
+          "autoRenewingPlan": true
+        }
+      ],
+      "externalAccountIdentifiers": {
+        "obfuscatedExternalAccountId": "hm_1"
+      }
+    },
+    {
+      "t": "2026-10-03T09:00:07Z",
+      "kind": "ledger",
+      "op": "revoke",
+      "token": "tok_a1",
+      "messageId": "m-5",
+      "fromState": "SUBSCRIPTION_STATE_ON_HOLD"
+    },
+    {
+      "t": "2026-10-03T10:00:05Z",
+      "kind": "rtdn",
+      "messageId": "m-6",
+      "eventTimeMillis": 1791021600000,
+      "notificationType": 1,
+      "token": "tok_a1",
+      "endpointStatus": 200
+    },
+    {
+      "t": "2026-10-03T10:00:06Z",
+      "kind": "api",
+      "call": "subscriptionsv2.get",
+      "token": "tok_a1",
+      "status": 200,
+      "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+      "lineItems": [
+        {
+          "productId": "explorer",
+          "expiryTime": "2026-11-03T09:00:00Z",
+          "autoRenewingPlan": true
+        }
+      ],
+      "externalAccountIdentifiers": {
+        "obfuscatedExternalAccountId": "hm_1"
+      }
+    },
+    {
+      "t": "2026-10-03T10:00:07Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_a1",
+      "userId": "u_1",
+      "tier": "pro",
+      "idempotencyKey": "tok_a1:grant:2",
+      "expiry": "2026-11-03T09:00:00Z",
+      "expirySource": "expiryTime",
+      "messageId": "m-6"
+    },
+    {
+      "t": "2026-10-03T10:05:00Z",
+      "kind": "rtdn",
+      "messageId": "m-7",
+      "eventTimeMillis": 1791019800000,
+      "notificationType": 5,
+      "token": "tok_a1",
+      "endpointStatus": 200
+    },
+    {
+      "t": "2026-10-03T10:05:01Z",
+      "kind": "api",
+      "call": "subscriptionsv2.get",
+      "token": "tok_a1",
+      "status": 200,
+      "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+      "lineItems": [
+        {
+          "productId": "explorer",
+          "expiryTime": "2026-11-03T09:00:00Z",
+          "autoRenewingPlan": true
+        }
+      ],
+      "externalAccountIdentifiers": {
+        "obfuscatedExternalAccountId": "hm_1"
+      }
+    },
+    {
+      "t": "2026-10-03T10:05:02Z",
+      "kind": "ledger",
+      "op": "revoke",
+      "token": "tok_a1",
+      "messageId": "m-7",
+      "fromState": "SUBSCRIPTION_STATE_ON_HOLD"
+    }
+  ]
+}
