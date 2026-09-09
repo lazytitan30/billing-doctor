@@ -1,0 +1,25 @@
+{
+  "kind": "androidpublisher#subscriptionPurchaseV2",
+  "regionCode": "DE",
+  "latestOrderId": "GPA.0000-0000-0000-00000",
+  "startTime": "2026-09-01T10:00:00Z",
+  "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+  "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+  "linkedPurchaseToken": "tok_a1",
+  "lineItems": [
+    {
+      "productId": "master",
+      "expiryTime": "2026-10-01T10:00:00Z",
+      "autoRenewingPlan": {
+        "autoRenewEnabled": true
+      },
+      "offerDetails": {
+        "basePlanId": "monthly-master"
+      },
+      "latestSuccessfulOrderId": "GPA.0000-0000-0000-00000"
+    }
+  ],
+  "externalAccountIdentifiers": {
+    "obfuscatedExternalAccountId": "hm_9f3c"
+  }
+}

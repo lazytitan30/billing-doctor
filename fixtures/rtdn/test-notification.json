@@ -1,0 +1,8 @@
+{
+  "message": {
+    "data": "eyJ2ZXJzaW9uIjoiMS4wIiwicGFja2FnZU5hbWUiOiJjb20uZXhhbXBsZS5hcHAiLCJldmVudFRpbWVNaWxsaXMiOiIxNzg4MjU2ODA5MDAwIiwidGVzdE5vdGlmaWNhdGlvbiI6eyJ2ZXJzaW9uIjoiMS4wIn19",
+    "messageId": "m-1003",
+    "publishTime": "2026-09-01T10:00:09.123Z"
+  },
+  "subscription": "projects/my-other-project/subscriptions/rtdn-push"
+}

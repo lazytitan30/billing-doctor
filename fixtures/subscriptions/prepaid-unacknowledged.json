@@ -1,0 +1,23 @@
+{
+  "kind": "androidpublisher#subscriptionPurchaseV2",
+  "regionCode": "DE",
+  "latestOrderId": "GPA.0000-0000-0000-00000",
+  "startTime": "2026-09-01T10:00:00Z",
+  "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+  "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+  "lineItems": [
+    {
+      "productId": "explorer",
+      "expiryTime": "2026-09-04T10:00:00Z",
+      "prepaidPlan": {
+        "allowExtendAfterTime": "2026-09-03T10:00:00Z"
+      },
+      "offerDetails": {
+        "basePlanId": "prepaid-3d"
+      }
+    }
+  ],
+  "externalAccountIdentifiers": {
+    "obfuscatedExternalAccountId": "hm_9f3c"
+  }
+}

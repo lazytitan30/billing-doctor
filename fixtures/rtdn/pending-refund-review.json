@@ -1,0 +1,8 @@
+{
+  "message": {
+    "data": "eyJ2ZXJzaW9uIjoiMS4wIiwicGFja2FnZU5hbWUiOiJjb20uZXhhbXBsZS5hcHAiLCJldmVudFRpbWVNaWxsaXMiOiIxNzg4MjU2ODA5MDAwIiwicGVuZGluZ1JlZnVuZFJldmlld05vdGlmaWNhdGlvbiI6eyJ2ZXJzaW9uIjoiMS4wIiwicGVuZGluZ1JlZnVuZFRva2VuIjoicHJ0XzAwMDEiLCJvcmRlcklkIjoiR1BBLjAwMDAtMDAwMC0wMDAwLTAwMDAwIiwicmVmdW5kUmVhc29uIjo3LCJvYmZ1c2NhdGVkQWNjb3VudElkIjoiaG1fOWYzYyJ9fQ==",
+    "messageId": "m-1004",
+    "publishTime": "2026-09-01T10:00:09.123Z"
+  },
+  "subscription": "projects/my-other-project/subscriptions/rtdn-push"
+}
