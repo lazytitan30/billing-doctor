@@ -26,6 +26,9 @@
     "url": "https://github.com/lazytitan30/billing-doctor/issues"
   },
   "type": "module",
+  "bin": {
+    "billing-doctor": "dist/cli.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
