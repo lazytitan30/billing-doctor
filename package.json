@@ -41,7 +41,12 @@
     "dist",
     "fixtures",
     "skills",
+    "docs",
+    "server.json",
+    "GEMINI.md",
+    "gemini-extension.json",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "engines": {
