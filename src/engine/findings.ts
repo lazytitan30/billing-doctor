@@ -63,8 +63,14 @@ function wrap(label: string, text: string): string {
   return `${INDENT}${label.padEnd(10)}${text}`;
 }
 
-// Plain text for people. Grouped by severity, in the sorted order.
-export function formatFindings(findings: Finding[], timeline?: NormalizedTimeline): string {
+// Plain text for people. Grouped by severity, in the sorted order. The
+// optional runbook lookup returns the kit's entry for a rule when the kit
+// folder is present.
+export function formatFindings(
+  findings: Finding[],
+  timeline?: NormalizedTimeline,
+  runbook?: (ruleId: string) => string | undefined,
+): string {
   const lines: string[] = [];
   const byIndex = new Map<number, NormalizedEvent>();
   if (timeline) for (const e of timeline.events) byIndex.set(e.i, e);
@@ -90,6 +96,11 @@ export function formatFindings(findings: Finding[], timeline?: NormalizedTimelin
       if (f.googleRule.observed) lines.push(wrap('observed', f.googleRule.observed));
       lines.push(wrap('next', f.nextCheck));
       lines.push(wrap('fix', `${f.fix.replace('runbook:', 'runbook ')} (billing-doctor rule ${f.ruleId})`));
+      const entry = runbook?.(f.ruleId);
+      if (entry) {
+        lines.push(wrap('runbook', ''));
+        for (const line of entry.trimEnd().split('\n')) lines.push(`${INDENT}${''.padEnd(10)}${line}`);
+      }
       lines.push('');
     }
   }

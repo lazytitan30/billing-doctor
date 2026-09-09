@@ -31,4 +31,8 @@ export { explainSubscription, SUBSCRIPTION_STATE_INFO } from './google/states.js
 export type { SubscriptionResource, Explanation } from './google/states.js';
 
 export { GOOGLE_RULES, googleRule, READ_ON } from './google/docs.js';
+
+export { redact, pseudonymForToken, pseudonymForUser, maskOrderId } from './redact.js';
+export type { RedactResult, RedactOptions } from './redact.js';
+export { findKit, runbookEntry, KIT_FOLDER } from './kit.js';
 export type { GoogleRule } from './google/docs.js';

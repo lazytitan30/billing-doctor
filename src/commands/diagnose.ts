@@ -7,14 +7,16 @@ import { parseTimeline } from '../engine/timeline.js';
 import { diagnose } from '../engine/diagnose.js';
 import { formatFindings } from '../engine/findings.js';
 import { VERSION } from '../index.js';
+import { findKit, runbookEntry } from '../kit.js';
 
-export const DIAGNOSE_HELP = `Usage: billing-doctor diagnose <timeline.json> [--json] [--rules B1,C3]
+export const DIAGNOSE_HELP = `Usage: billing-doctor diagnose <timeline.json> [--json] [--rules B1,C3] [--kit <path>]
 
 Runs every rule over the timeline and prints the findings, grouped by
 severity, each with its evidence, Google's rule, a confidence and the next
 check. Exits 1 when any high finding exists, so it can gate CI.
   --json           machine output: { findings, summary, exitCode, warnings }
-  --rules <ids>    run only these rules (comma-separated)`;
+  --rules <ids>    run only these rules (comma-separated)
+  --kit <path>     the Incident Kit folder (also BILLING_DOCTOR_KIT, or ./billing-doctor-kit)`;
 
 export function runDiagnose(argv: string[]): number {
   const { values, positionals } = parseArgs({
@@ -22,6 +24,7 @@ export function runDiagnose(argv: string[]): number {
     options: {
       json: { type: 'boolean', default: false },
       rules: { type: 'string' },
+      kit: { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
     allowPositionals: true,
@@ -48,6 +51,8 @@ export function runDiagnose(argv: string[]): number {
 
   const rules = values.rules ? values.rules.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
   const result = diagnose(parsed.timeline!, { rules });
+  const kitDir = findKit(values.kit);
+  const runbook = (ruleId: string) => runbookEntry(kitDir, ruleId);
 
   if (values.json) {
     console.log(
@@ -56,7 +61,8 @@ export function runDiagnose(argv: string[]): number {
           tool: `billing-doctor ${VERSION}`,
           file,
           events: parsed.timeline!.events.length,
-          findings: result.findings,
+          findings: result.findings.map((f) => ({ ...f, runbook: runbook(f.ruleId) ?? null })),
+          kit: kitDir ?? null,
           summary: result.summary,
           exitCode: result.exitCode,
           warnings: parsed.warnings,
@@ -73,7 +79,7 @@ export function runDiagnose(argv: string[]): number {
   console.log('');
   for (const warning of parsed.warnings) console.log(`warning: ${warning}`);
   if (parsed.warnings.length) console.log('');
-  console.log(formatFindings(result.findings, result.timeline));
+  console.log(formatFindings(result.findings, result.timeline, runbook));
   for (const error of result.errors) console.error(`rule error: ${error}`);
   if (result.exitCode === 1) console.log('exit 1: a high finding is present');
   return result.exitCode;
