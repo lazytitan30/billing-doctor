@@ -1,0 +1,12 @@
+{
+  "name": "billing-doctor",
+  "description": "Diagnose Google Play Billing incidents from a redacted timeline: evidence, Google's rule with a dated link, and the next check. Local, read-only. Not affiliated with Google.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Tekitana d.o.o."
+  },
+  "homepage": "https://github.com/lazytitan30/billing-doctor",
+  "repository": "https://github.com/lazytitan30/billing-doctor",
+  "license": "MIT",
+  "keywords": ["google-play-billing", "subscriptions", "rtdn", "in-app-purchase", "diagnostic"]
+}

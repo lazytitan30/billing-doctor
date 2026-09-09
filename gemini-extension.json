@@ -1,0 +1,12 @@
+{
+  "name": "billing-doctor",
+  "version": "0.1.0",
+  "description": "Diagnose Google Play Billing incidents from a redacted timeline: evidence, Google's rule with a dated link, and the next check. Local, read-only. Not affiliated with Google.",
+  "mcpServers": {
+    "billing-doctor": {
+      "command": "npx",
+      "args": ["-y", "billing-doctor", "mcp"]
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

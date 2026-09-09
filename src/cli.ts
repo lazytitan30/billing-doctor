@@ -15,6 +15,7 @@ import { runState } from './commands/state.js';
 import { runDiagnose } from './commands/diagnose.js';
 import { runRedact } from './commands/redact.js';
 import { runRules, runRule } from './commands/rules.js';
+import { runMcp } from './commands/mcp.js';
 
 const USAGE = `billing-doctor ${VERSION}: incident diagnosis for Google Play Billing integrations.
 Runs locally, calls nothing, changes nothing at Google. Not affiliated with Google.
@@ -30,6 +31,7 @@ Commands:
   redact      replace tokens, emails, order ids and secrets in a log so it can be shared
   rules       list the rule catalogue
   rule <id>   print one rule in full, with the runbook entry when the kit folder is present
+  mcp         serve the six tools over stdio for a coding agent
 
 Run billing-doctor <command> --help for the options of one command.`;
 
@@ -52,6 +54,8 @@ async function main(argv: string[]): Promise<number> {
       return runRules(rest);
     case 'rule':
       return runRule(rest);
+    case 'mcp':
+      return runMcp(rest);
     case '--version':
     case '-v':
       console.log(VERSION);
