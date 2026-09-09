@@ -1,0 +1,40 @@
+{
+  "findings": [
+    {
+      "ruleId": "D3",
+      "severity": "high",
+      "confidence": "certain",
+      "evidence": [
+        9,
+        10
+      ]
+    },
+    {
+      "ruleId": "E1",
+      "severity": "high",
+      "confidence": "likely",
+      "evidence": [
+        10,
+        11
+      ]
+    },
+    {
+      "ruleId": "D1",
+      "severity": "high",
+      "confidence": "certain",
+      "evidence": [
+        12,
+        15
+      ]
+    },
+    {
+      "ruleId": "C3",
+      "severity": "high",
+      "confidence": "certain",
+      "evidence": [
+        14,
+        15
+      ]
+    }
+  ]
+}

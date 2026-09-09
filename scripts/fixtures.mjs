@@ -6,6 +6,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeFixtures as makeDG } from './fixtures-DG.mjs';
+import { makeFixtures as makeAHIJ } from './fixtures-AHIJ.mjs';
+import { makeComposites } from './fixtures-composite.mjs';
 
 const SCHEMA = 'billing-doctor-timeline/1';
 const ACTIVE = 'SUBSCRIPTION_STATE_ACTIVE';
@@ -380,10 +382,9 @@ rules['C7-test-notification-applied'] = {
   expected: expect('C7', 'low', 'certain', [8, 9]),
 };
 
-Object.assign(
-  rules,
-  makeDG({ timeline, purchase, get, productGet, api, ledger, grant, rtdn, voided, support, opening, at, expect, SEC, MIN, HOUR, DAY, S, E, ACTIVE, GRACE, CANCELED, ON_HOLD, PAUSED, EXPIRED, PENDING_ACK }),
-);
+const builders = { timeline, purchase, get, productGet, api, ledger, grant, rtdn, voided, support, opening, at, expect, SEC, MIN, HOUR, DAY, S, E, ACTIVE, GRACE, CANCELED, ON_HOLD, PAUSED, EXPIRED, PENDING_ACK };
+Object.assign(rules, makeDG(builders), makeAHIJ(builders));
+const composites = makeComposites(builders);
 
 // ---- clean fixtures -------------------------------------------------------------------------
 
@@ -485,8 +486,10 @@ clean['05-prepaid-with-topup'] = timeline([
 const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const rulesDir = join(root, 'fixtures', 'rules');
 const cleanDir = join(root, 'fixtures', 'clean');
+const compositeDir = join(root, 'fixtures', 'composite');
 mkdirSync(rulesDir, { recursive: true });
 mkdirSync(cleanDir, { recursive: true });
+mkdirSync(compositeDir, { recursive: true });
 
 // Strip undefined tokens (voidedpurchases.list carries none) and sort events by time.
 function finish(tl) {
@@ -503,4 +506,8 @@ for (const [name, { timeline: tl, expected }] of Object.entries(rules)) {
 for (const [name, tl] of Object.entries(clean)) {
   writeFileSync(join(cleanDir, `${name}.json`), `${JSON.stringify(finish(tl), null, 2)}\n`);
 }
-console.log(`wrote ${Object.keys(rules).length} rule fixtures and ${Object.keys(clean).length} clean fixtures`);
+for (const [name, tl] of Object.entries(composites)) {
+  writeFileSync(join(compositeDir, `${name}.json`), `${JSON.stringify(finish(tl), null, 2)}
+`);
+}
+console.log(`wrote ${Object.keys(rules).length} rule fixtures, ${Object.keys(clean).length} clean fixtures and ${Object.keys(composites).length} composite timelines`);

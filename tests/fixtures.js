@@ -19,7 +19,9 @@ export function listFixtures(dir, prefix = '') {
 export function loadTimeline(dir, name) {
   const result = parseTimeline(readFileSync(join(FIXTURES, dir, name), 'utf8'));
   assert.equal(result.ok, true, `${name}: ${result.errors.join('; ')}`);
-  assert.deepEqual(result.warnings, [], `${name} carries something that looks real`);
+  // The J3 fixture carries a real-looking token on purpose; every other
+  // fixture must be clean.
+  if (!name.startsWith('J3')) assert.deepEqual(result.warnings, [], `${name} carries something that looks real`);
   return result.timeline;
 }
 
@@ -30,10 +32,9 @@ export function runFixture(dir, name) {
   return diagnosis;
 }
 
-// Every rule fixture triggers exactly its rule, with the evidence it names.
-export function assertRuleFixture(name) {
-  const diagnosis = runFixture('rules', name);
-  const expected = JSON.parse(readFileSync(join(FIXTURES, 'rules', name.replace(/\.json$/, '.expected.json')), 'utf8'));
+function assertExpected(dir, name) {
+  const diagnosis = runFixture(dir, name);
+  const expected = JSON.parse(readFileSync(join(FIXTURES, dir, name.replace(/\.json$/, '.expected.json')), 'utf8'));
   const got = diagnosis.findings.map((f) => ({
     ruleId: f.ruleId,
     severity: f.severity,
@@ -46,6 +47,18 @@ export function assertRuleFixture(name) {
     assert.ok(finding.nextCheck.length > 0, `${name}: ${finding.ruleId} has no next check`);
     assert.ok(finding.mechanism.length > 0, `${name}: ${finding.ruleId} has no mechanism`);
   }
+  return diagnosis;
+}
+
+// Every rule fixture triggers exactly its rule, with the evidence it names.
+export function assertRuleFixture(name) {
+  return assertExpected('rules', name);
+}
+
+// A composite fixture produces its expected findings in the expected order.
+export function assertCompositeFixture(name) {
+  const diagnosis = assertExpected('composite', name);
+  assert.ok(diagnosis.findings.length >= 3, `${name}: a composite fixture should produce several findings`);
 }
 
 export function assertClean(name) {

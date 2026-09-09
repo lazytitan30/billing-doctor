@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "ruleId": "H4",
+      "severity": "medium",
+      "confidence": "likely",
+      "evidence": [
+        0
+      ]
+    }
+  ]
+}

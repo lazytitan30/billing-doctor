@@ -10,7 +10,8 @@ export type RtdnEv = Extract<Ev, { kind: 'rtdn' }>;
 export type AppEv = Extract<Ev, { kind: 'app' }>;
 export type ConsoleEv = Extract<Ev, { kind: 'console' }>;
 
-export const HOUR_MS = 3_600_000;
+export const MIN_MS = 60_000;
+export const HOUR_MS = 60 * MIN_MS;
 export const DAY_MS = 24 * HOUR_MS;
 
 export function isOk(status: number): boolean {

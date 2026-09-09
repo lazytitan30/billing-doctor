@@ -44,6 +44,27 @@ import { G3 } from './rules/G3.js';
 import { G4 } from './rules/G4.js';
 import { G5 } from './rules/G5.js';
 import { G6 } from './rules/G6.js';
+import { A1 } from './rules/A1.js';
+import { A2 } from './rules/A2.js';
+import { A3 } from './rules/A3.js';
+import { A4 } from './rules/A4.js';
+import { A5 } from './rules/A5.js';
+import { A6 } from './rules/A6.js';
+import { H1 } from './rules/H1.js';
+import { H2 } from './rules/H2.js';
+import { H3 } from './rules/H3.js';
+import { H4 } from './rules/H4.js';
+import { H5 } from './rules/H5.js';
+import { H6 } from './rules/H6.js';
+import { I1 } from './rules/I1.js';
+import { I2 } from './rules/I2.js';
+import { I3 } from './rules/I3.js';
+import { I4 } from './rules/I4.js';
+import { I5 } from './rules/I5.js';
+import { J1 } from './rules/J1.js';
+import { J2 } from './rules/J2.js';
+import { J3 } from './rules/J3.js';
+import { J4 } from './rules/J4.js';
 
 export const GROUPS: Record<string, string> = {
   A: 'Configuration and permissions',
@@ -59,12 +80,16 @@ export const GROUPS: Record<string, string> = {
 };
 
 export const RULES: Rule[] = [
+  A1, A2, A3, A4, A5, A6,
   B1, B2, B3, B4, B5, B6, B7, B8, B9,
   C1, C2, C3, C4, C5, C6, C7,
   D1, D2, D3, D4, D5, D6, D7, D8, D9, D10,
   E1, E2, E3, E4, E5, E6,
   F1, F2, F3, F4,
   G1, G2, G3, G4, G5, G6,
+  H1, H2, H3, H4, H5, H6,
+  I1, I2, I3, I4, I5,
+  J1, J2, J3, J4,
 ];
 
 export function ruleById(id: string): Rule | undefined {
