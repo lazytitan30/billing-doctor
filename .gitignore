@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tgz
+.env
+service-account*.json
+*-service-account*.json
+billing-doctor-kit/
+.DS_Store
+Thumbs.db

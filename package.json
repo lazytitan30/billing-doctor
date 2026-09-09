@@ -1,0 +1,61 @@
+{
+  "name": "billing-doctor",
+  "version": "0.1.0",
+  "description": "Incident diagnosis for Google Play Billing integrations. Reads a redacted purchase timeline and shows where it broke, with evidence and Google's rule. Runs locally, calls nothing, changes nothing at Google. Not affiliated with Google.",
+  "keywords": [
+    "google-play-billing",
+    "subscriptions",
+    "in-app-purchase",
+    "rtdn",
+    "real-time-developer-notifications",
+    "entitlements",
+    "refunds",
+    "diagnostic",
+    "mcp",
+    "mcp-server",
+    "android"
+  ],
+  "license": "MIT",
+  "author": "Tekitana d.o.o.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazytitan30/billing-doctor.git"
+  },
+  "homepage": "https://github.com/lazytitan30/billing-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/lazytitan30/billing-doctor/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "fixtures",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "mcpName": "io.github.lazytitan30/billing-doctor",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"tests/**/*.test.js\"",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  }
+}
