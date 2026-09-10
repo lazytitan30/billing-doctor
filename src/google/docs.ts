@@ -22,6 +22,11 @@ export const READ_ON = '2026-09-09';
 // The device-side pages and the pages behind the K group were read a day later.
 export const READ_ON_DEVICE = '2026-09-10';
 
+// The incidents mined from public issue trackers on 2026-09-10 showed four
+// failures the catalogue could not name. These are the sentences those rules
+// rest on, read the same day.
+export const READ_ON_FIELD = '2026-09-10';
+
 const URLS = {
   rtdn: 'https://developer.android.com/google/play/billing/rtdn-reference',
   subscriptionsv2: 'https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2',
@@ -777,6 +782,40 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
     context: 'The same page: "purchaseToken is globally unique, so you can safely use this value as a primary key in your database."',
     url: URLS.security,
     readOn: READ_ON_DEVICE,
+  },
+  B12: {
+    title: 'purchases.subscriptionsv2: acknowledgementState',
+    quote: 'ACKNOWLEDGEMENT_STATE_PENDING: The subscription is not acknowledged yet.',
+    context:
+      "The resource is the record of whether Google considers the purchase acknowledged. A wrapper reporting success is reporting its own call, not Google's answer, and the two come apart exactly when it matters.",
+    url: URLS.subscriptionsv2,
+    readOn: READ_ON_FIELD,
+  },
+  B13: {
+    title: 'Integrate the library: handling pending transactions',
+    quote:
+      'If the purchase is in PENDING state, your app should notify the user that they still need to complete actions to complete the purchase before entitlement is granted. Only grant entitlement when the purchase transitions from PENDING to PURCHASED.',
+    context:
+      'A purchase seen once as PENDING and never seen again means nothing picked up the transition. The three-day acknowledgement clock starts at that transition, so it runs while nobody is watching.',
+    url: URLS.integrate,
+    readOn: READ_ON_FIELD,
+  },
+  F7: {
+    title: 'Subscriptions: replacing an existing subscription',
+    quote:
+      'The existing purchase level update params BillingFlowParams.setSubscriptionUpdateParams() should be constructed with setOldPurchaseToken().',
+    context:
+      'A plan change launched without the token of the subscription it replaces is not a replacement. Google treats it as an unrelated new purchase, the old one keeps renewing, and the user pays twice.',
+    url: URLS.subscriptions,
+    readOn: READ_ON_FIELD,
+  },
+  K15: {
+    title: 'Integrate the library: process all purchases',
+    quote: 'you must call BillingClient.queryPurchasesAsync() to ensure your app processes all purchases.',
+    context:
+      'When Google holds a purchase and the device query returns nothing, the app cannot process what it cannot see. The purchase is real, the entitlement is missing, and buying again is refused as already owned.',
+    url: URLS.integrate,
+    readOn: READ_ON_FIELD,
   },
 };
 

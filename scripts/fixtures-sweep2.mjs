@@ -392,5 +392,61 @@ export function makeFixtures(b) {
     expected: expect('K14', 'low', 'likely', [4, 5]),
   };
 
+  // ---- The third sweep: what the mined incidents showed was missing ----
+
+  // The device says the acknowledgement worked. Nothing ever asked Google.
+  rules['B12-acknowledged-only-on-device'] = {
+    timeline: timeline([
+      purchase('tok_a1', S),
+      get('tok_a1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: E }),
+      grant('tok_a1', at(S, 3 * SEC), { expiry: E }),
+      app('acknowledge', at(S, 4 * SEC), { token: 'tok_a1' }),
+      support(at(S, 3 * DAY), 'Google refunded the subscription although the acknowledge call reported success'),
+    ]),
+    expected: expect('B12', 'high', 'likely', [3]),
+  };
+
+  // A pending purchase and then silence. The clock starts where nobody is looking.
+  rules['B13-pending-never-followed'] = {
+    timeline: timeline([
+      ...boot(S),
+      purchase('tok_d1', at(S, 40 * SEC), { productId: 'pack_deluxe', purchaseState: 'PENDING' }),
+      support(at(S, 3 * DAY), 'the user paid at a kiosk and never got the unlock'),
+    ]),
+    expected: expect('B13', 'high', 'likely', [3]),
+  };
+
+  // Two live subscriptions for one user and nothing linking them.
+  rules['F7-two-live-subscriptions'] = {
+    timeline: timeline([
+      purchase('tok_a1', S),
+      get('tok_a1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: E }),
+      grant('tok_a1', at(S, 3 * SEC), { expiry: E }),
+      api('subscriptions.acknowledge', 'tok_a1', at(S, 4 * SEC)),
+      ledger('ack', 'tok_a1', at(S, 5 * SEC)),
+      rtdn(4, 'tok_a1', at(S, 9 * SEC), { messageId: 'm-1', eventTime: S }),
+      purchase('tok_b2', at(S, 5 * DAY), { productId: 'plus_monthly' }),
+      rtdn(4, 'tok_b2', at(S, 5 * DAY + SEC), { messageId: 'm-2', eventTime: at(S, 5 * DAY) }),
+      get('tok_b2', at(S, 5 * DAY + 2 * SEC), { ack: PENDING_ACK, expiry: at(S, 35 * DAY), productId: 'plus_monthly' }),
+      grant('tok_b2', at(S, 5 * DAY + 3 * SEC), { expiry: at(S, 35 * DAY), tier: 'plus' }),
+      api('subscriptions.acknowledge', 'tok_b2', at(S, 5 * DAY + 4 * SEC)),
+      ledger('ack', 'tok_b2', at(S, 5 * DAY + 5 * SEC)),
+      support(at(S, 6 * DAY), 'the user is being charged for two plans and only asked for one'),
+    ]),
+    expected: expect('F7', 'high', 'likely', [2, 9]),
+  };
+
+  // Google holds it, the device query cannot see it.
+  rules['K15-google-holds-what-the-device-missed'] = {
+    timeline: timeline([
+      app('app_start', S),
+      app('billing_connected', at(S, 400)),
+      app('query_purchases', at(S, 900), { returned: 0 }),
+      get('tok_a1', at(S, 5 * MIN), { expiry: E }),
+      support(at(S, 10 * MIN), 'the subscription is active at Google and the app restores nothing'),
+    ]),
+    expected: expect('K15', 'high', 'likely', [2, 3]),
+  };
+
   return rules;
 }

@@ -111,7 +111,7 @@ test('the server initializes, lists the six tools, and answers each', async () =
     assert.equal(redacted.text, 'mail [email]');
 
     const rules = JSON.parse(textOf(await client.request('tools/call', { name: 'list_rules', arguments: {} })));
-    assert.equal(rules.length, 89);
+    assert.equal(rules.length, 93);
 
     const rule = JSON.parse(textOf(await client.request('tools/call', { name: 'get_rule', arguments: { id: 'c6' } })));
     assert.equal(rule.id, 'C6');

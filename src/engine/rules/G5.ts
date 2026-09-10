@@ -26,7 +26,7 @@ export const G5 = defineRule({
         evidence: [refund.i],
         confidence: 'certain' as const,
         mechanism: `${refund.call} for ${token} at #${refund.i} returned the money${refund.call === 'orders.refund' ? ' with revoke unset' : ''}; no revoke followed at Google, so access and future renewals continue.`,
-        nextCheck: `Call purchases.subscriptionsv2.revoke for ${token}, or orders.refund with revoke=true next time, and revoke in the ledger too.`,
+        nextCheck: `Call purchases.subscriptionsv2.revoke for ${token}, or orders.refund with revoke=true next time, and revoke in the ledger too. Check the voided purchases feed for this order as well: a refund issued without revoking does not appear there at all, so the sweep in G4 cannot find it and the refund stays invisible until a person notices.`,
       });
     }
     return hits;

@@ -1,6 +1,6 @@
 import { defineRule } from '../rule.js';
 import { isApp, precedes } from '../helpers.js';
-import { failedWith, howKnown } from './deviceCodes.js';
+import { failedWith, howKnown, outcomeOf, saysAlreadyConnecting } from './deviceCodes.js';
 
 const NEEDS_CONNECTION = new Set(['query_products', 'query_purchases', 'launch_billing_flow', 'acknowledge', 'consume']);
 
@@ -12,19 +12,21 @@ export const K2 = defineRule({
   severity: 'medium',
   title: 'Billing call made while the client was disconnected',
   detects:
-    'A device call that failed with SERVICE_DISCONNECTED, or a call made before the first billing_connected event in the timeline. The library can reconnect on its own if that is switched on.',
+    'A device call that failed with SERVICE_DISCONNECTED, one reported as a developer error while a connection attempt was already in flight, or a call made before the first billing_connected event. The library can reconnect on its own if that is switched on.',
   run(tl) {
     const hits = [];
     const connected = tl.events.find((e) => isApp(e) && e.type === 'billing_connected');
     for (const e of tl.events) {
       if (!isApp(e)) continue;
-      const outcome = failedWith(e, -1);
+      // Code 5 with a message about connecting is the library saying an attempt
+      // is already in flight, not that the arguments are wrong.
+      const outcome = failedWith(e, -1) ?? (saysAlreadyConnecting(e) ? outcomeOf(e) : undefined);
       if (outcome) {
         hits.push({
           evidence: [e.i],
           confidence: outcome.exact ? ('certain' as const) : ('likely' as const),
-          mechanism: `${e.type} at #${e.i} failed because the client was not connected to Play (${howKnown(outcome)}).`,
-          nextCheck: `Enable automatic service reconnection when building the BillingClient, gate every call on the client being ready, and reconnect with backoff from onBillingServiceDisconnected. Expect the connection to drop by itself when the Play Store updates.`,
+          mechanism: `${e.type} at #${e.i} failed because the client was not connected to Play (${howKnown(outcome)})${saysAlreadyConnecting(e) ? ', reported as a developer error while a connection attempt was already in flight' : ''}.`,
+          nextCheck: `Enable automatic service reconnection when building the BillingClient, gate every call on the client being ready, and reconnect with backoff from onBillingServiceDisconnected. Expect the connection to drop by itself when the Play Store updates. Check what happens when the service drops while a connection attempt is already running: if nothing schedules another attempt from the disconnection handler, the client waits on an attempt that died and every queued call hangs with no error and no timeout.`,
         });
         continue;
       }

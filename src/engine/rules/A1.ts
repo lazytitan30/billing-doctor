@@ -1,5 +1,5 @@
 import { defineRule } from '../rule.js';
-import { MIN_MS, isPurchaseResult, isRtdn, iso } from '../helpers.js';
+import { MIN_MS, hasServerView, isPurchaseResult, isRtdn, iso } from '../helpers.js';
 
 // Several purchases and not one notification: nothing is being published.
 export const A1 = defineRule({
@@ -8,8 +8,9 @@ export const A1 = defineRule({
   severity: 'high',
   title: 'Purchases produce no notifications',
   detects:
-    'Two or more PURCHASED results with no notification for their tokens inside fifteen minutes, in a timeline that runs past that window. Without the Pub/Sub Publisher grant to Google\'s notification account, nothing arrives.',
+    'Two or more PURCHASED results with no notification for their tokens inside fifteen minutes, in a timeline that runs past that window and that carries some record from the backend. Without the Pub/Sub Publisher grant to Google\'s notification account, nothing arrives.',
   run(tl) {
+    if (!hasServerView(tl)) return [];
     const silent = [];
     for (const purchase of tl.events.filter((e) => isPurchaseResult(e) && e.purchaseState === 'PURCHASED' && e.token)) {
       const windowEnd = purchase.tMs + 15 * MIN_MS;

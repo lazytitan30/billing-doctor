@@ -13,7 +13,7 @@ export const K7 = defineRule({
   severity: 'low',
   title: 'Retrying a failure the device cannot recover from',
   detects:
-    'A call that failed with BILLING_UNAVAILABLE or FEATURE_NOT_SUPPORTED, followed by two or more further attempts within two minutes. Google says automatic retries are unlikely to help; only the user changing the condition does.',
+    'A call that failed with BILLING_UNAVAILABLE or FEATURE_NOT_SUPPORTED. Google says automatic retries are unlikely to help and only the user changing the condition does, so this reports the failure itself and notes any retry storm on top of it.',
   run(tl) {
     const hits = [];
     for (const e of tl.events) {
@@ -23,13 +23,14 @@ export const K7 = defineRule({
       const retries = tl.events.filter(
         (r) => isApp(r) && r.type === e.type && precedes(e, r) && r.tMs <= e.tMs + WINDOW_MS,
       );
-      if (retries.length < 2) continue;
       hits.push({
         evidence: [e.i, ...retries.slice(0, 3).map((r) => r.i)],
+        severity: retries.length >= 2 ? ('low' as const) : ('medium' as const),
         confidence: outcome.exact ? ('certain' as const) : ('likely' as const),
-        mechanism: `${e.type} failed with ${outcome.name} at #${e.i} (${howKnown(outcome)}) and was retried ${retries.length} times within two minutes.`,
+        mechanism: `${e.type} failed with ${outcome.name} at #${e.i} (${howKnown(outcome)})${retries.length >= 2 ? ` and was retried ${retries.length} times within two minutes` : ', and this user cannot buy anything until the condition changes'}.`,
         nextCheck: `Stop retrying this one automatically. Tell the user what to fix: update the Play Store app, sign in to a Google account, or that purchases are not available in their country or on a work-managed device. Call isFeatureSupported before using a feature rather than discovering it this way.`,
       });
+      break;
     }
     return hits;
   },

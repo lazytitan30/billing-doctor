@@ -193,6 +193,12 @@ export function productTypeOf(tl: NormalizedTimeline, productId: string | undefi
   return productId ? tl.app.products?.[productId] : undefined;
 }
 
+// A timeline that carries nothing from the server cannot show whether a
+// notification arrived, so absence proves nothing about the configuration.
+export function hasServerView(tl: NormalizedTimeline): boolean {
+  return tl.events.some((e) => isRtdn(e) || isApi(e) || isLedger(e));
+}
+
 export function isPrepaidGet(e: Ev): boolean {
   return isOkGet(e) && Boolean(e.lineItems?.some((item) => item.prepaidPlan));
 }

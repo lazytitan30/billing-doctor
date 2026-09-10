@@ -67,6 +67,18 @@ export function outcomeOf(e: Ev): DeviceOutcome | undefined {
   return undefined;
 }
 
+// Two wordings that arrive as DEVELOPER_ERROR and are not argument mistakes.
+// The library returns code 5 while a connection attempt is already in flight,
+// and it returns code 5 with a message naming stale product details.
+export function saysAlreadyConnecting(e: Ev): boolean {
+  const text = isApp(e) ? `${(e as AppEv).errorCode ?? ''} ${(e as AppEv).errorMessage ?? ''}` : '';
+  return /already .{0,30}connect|in the process of connecting/i.test(text);
+}
+export function saysStaleDetails(e: Ev): boolean {
+  const text = isApp(e) ? `${(e as AppEv).errorCode ?? ''} ${(e as AppEv).errorMessage ?? ''}` : '';
+  return /expired product details|fetch product details again/i.test(text);
+}
+
 // Did this event fail with exactly this code?
 export function failedWith(e: Ev, code: number): DeviceOutcome | undefined {
   const outcome = outcomeOf(e);

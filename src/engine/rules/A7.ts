@@ -1,5 +1,5 @@
 import { defineRule } from '../rule.js';
-import { MIN_MS, isApi, isPurchaseResult, isRtdn, productTypeOf } from '../helpers.js';
+import { MIN_MS, hasServerView, isApi, isPurchaseResult, isRtdn, productTypeOf } from '../helpers.js';
 
 // One-time product notifications are published only if you opted into them.
 export const A7 = defineRule({
@@ -8,8 +8,9 @@ export const A7 = defineRule({
   severity: 'medium',
   title: 'One-time products sold, but their notifications were never enabled',
   detects:
-    'One-time purchases in the timeline and no notification of that kind anywhere, with the Console setting either declared off or unknown. Purchases, cancellations and refunds of those products are then invisible to the backend.',
+    'One-time purchases in a timeline that carries some record from the backend, and no notification of that kind anywhere, with the Console setting either declared off or unknown. Purchases, cancellations and refunds of those products are then invisible to the backend.',
   run(tl) {
+    if (!hasServerView(tl)) return [];
     const oneTime = tl.events.find((e) => {
       if (isPurchaseResult(e)) return ['consumable', 'non-consumable'].includes(productTypeOf(tl, e.productId) ?? '');
       return isApi(e) && (e.call === 'productsv2.get' || e.call === 'products.get');
