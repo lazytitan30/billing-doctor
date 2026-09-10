@@ -1,5 +1,7 @@
 import { defineRule } from '../rule.js';
-import { grantedBefore, isGrant, isRevoke, isRevokedNotification, precedes } from '../helpers.js';
+import { grantedBefore, isGrant, isOkGet, isRevoke, isRevokedNotification, precedes } from '../helpers.js';
+
+const GRANT_STATES = new Set(['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD', 'SUBSCRIPTION_STATE_CANCELED']);
 
 // Revoked before expiry: access ends now.
 export const G1 = defineRule({
@@ -8,13 +10,16 @@ export const G1 = defineRule({
   severity: 'high',
   title: 'SUBSCRIPTION_REVOKED with the ledger still granting',
   detects:
-    'A type 12 notification for a granted token with no ledger revoke afterwards, or a grant afterwards. Revoked means access ended before the expiration time.',
+    'A type 12 notification for a granted token with no ledger revoke afterwards, or a grant afterwards, unless a later fetch reads the subscription as still granting. Revoked means access ended before the expiration time.',
   run(tl) {
     const hits = [];
     for (const [token, events] of tl.byToken) {
       for (const rtdn of events.filter(isRevokedNotification)) {
         if (!grantedBefore(events, rtdn)) continue;
         if (events.some((e) => isRevoke(e) && precedes(rtdn, e))) continue;
+        // Google answered a grant state after its own revoke notification: the
+        // notification was not confirmed, and keeping access was right.
+        if (events.some((e) => isOkGet(e) && precedes(rtdn, e) && GRANT_STATES.has(e.subscriptionState ?? ''))) continue;
         const regrant = events.find((e) => isGrant(e) && precedes(rtdn, e));
         const standing = [...events].reverse().find((e) => isGrant(e) && precedes(e, rtdn));
         hits.push({

@@ -105,6 +105,8 @@ const lineItem = z.looseObject({
   // Either may be `true` as shorthand or the object Google returns.
   autoRenewingPlan: z.union([z.boolean(), z.looseObject({})]).optional(),
   prepaidPlan: z.union([z.boolean(), z.looseObject({})]).optional(),
+  // On a DEFERRED replacement: the product this item becomes at the next renewal.
+  deferredItemReplacement: z.looseObject({ productId: z.string().optional() }).optional(),
 });
 
 const apiEvent = z.looseObject({

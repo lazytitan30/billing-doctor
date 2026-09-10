@@ -8,15 +8,19 @@ export const B7 = defineRule({
   severity: 'high',
   title: 'Same token granted twice',
   detects:
-    'Two ledger grants for one token with no revoke between them. A second grant of a consumable cannot be rolled back, and it is how a retry turns into double credit.',
+    'Two ledger grants for one token and the same tier with no revoke between them. A second grant of a consumable cannot be rolled back, and it is how a retry turns into double credit.',
   run(tl) {
     const hits = [];
     for (const [token, events] of tl.byToken) {
       let standing: number | undefined;
+      let standingTier: string | undefined;
       for (const e of events) {
         if (isRevoke(e)) standing = undefined;
         if (!isGrant(e)) continue;
-        if (standing !== undefined) {
+        // A grant for another product on the same subscription (an add-on, a
+        // deferred replacement that started) is not a double grant.
+        const sameTier = standingTier === undefined || e.tier === undefined || standingTier === e.tier;
+        if (standing !== undefined && sameTier) {
           hits.push({
             evidence: [standing, e.i],
             confidence: 'certain' as const,
@@ -25,6 +29,7 @@ export const B7 = defineRule({
           });
         }
         standing = e.i;
+        standingTier = e.tier;
       }
     }
     return hits;

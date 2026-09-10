@@ -10,3 +10,4 @@ First release.
 - Commands: `diagnose`, `init`, `validate`, `state`, `rtdn`, `redact`, `rules`, `rule`, `mcp`.
 - MCP server over stdio with six tools; Claude Code plugin and skill; Gemini CLI extension; MCP registry manifest.
 - Kit detection: a `billing-doctor-kit` folder unlocks runbook text. No licence server, no network.
+- Rules refined by replaying the Incident Kit fixtures through its reference implementation: C3 exempts voided-purchase notifications (the void is acted on directly), G1 yields when a later fetch still reads a granting state, B7 and D7 understand one grant per product on a multi-item subscription, D2 and D3 do not count the invalidation of a replaced token, F2 compares tiers. Line items accept deferredItemReplacement.

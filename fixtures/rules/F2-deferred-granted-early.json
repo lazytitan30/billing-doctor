@@ -178,6 +178,9 @@
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": {
             "autoRenewEnabled": false
+          },
+          "deferredItemReplacement": {
+            "productId": "master"
           }
         },
         {
@@ -245,6 +248,9 @@
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": {
             "autoRenewEnabled": false
+          },
+          "deferredItemReplacement": {
+            "productId": "master"
           }
         },
         {

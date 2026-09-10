@@ -223,7 +223,7 @@ export function makeFixtures(b) {
         linked: 'tok_a1',
         extra: {
           lineItems: [
-            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false } },
+            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'master' } },
             { productId: 'master', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
           ],
         },
@@ -238,7 +238,7 @@ export function makeFixtures(b) {
         linked: 'tok_a1',
         extra: {
           lineItems: [
-            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false } },
+            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'master' } },
             { productId: 'master', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
           ],
         },

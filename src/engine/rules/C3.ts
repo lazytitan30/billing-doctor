@@ -8,7 +8,7 @@ export const C3 = defineRule({
   severity: 'high',
   title: 'State written from a notification without re-fetching from Google',
   detects:
-    'A ledger grant, revoke, expiry or write whose messageId points at a notification, with no successful purchases.*.get for the token between the two. The notification says what changed, not what is true.',
+    'A ledger grant, revoke, expiry or write whose messageId points at a subscription or one-time notification, with no successful purchases.*.get for the token between the two. The notification says what changed, not what is true; a voided-purchase notification is the exception and is acted on directly.',
   run(tl) {
     const hits = [];
     for (const [token, events] of tl.byToken) {
@@ -16,6 +16,8 @@ export const C3 = defineRule({
         if (!write.messageId) continue;
         const rtdn = rtdnBefore(tl, write.messageId, write);
         if (!rtdn) continue;
+        // The void is the fact: revoking on it without a fetch is right (G2).
+        if (rtdn.notification === 'voidedPurchase') continue;
         if (between(events, rtdn, write).some(isOkGet)) continue;
         hits.push({
           evidence: [rtdn.i, write.i],

@@ -42,6 +42,8 @@ export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleH
           (e) => isRevoke(e) && precedes(read, e) && (expiry === undefined || e.tMs < expiry) && !stateChangeBetween(events, read, e),
         );
         if (!revoke) continue;
+        // Another token replaced this one (upgrade, re-signup): invalidating it is what Google asks for (F1).
+        if (tl.events.some((e) => isOkGet(e) && e.linkedPurchaseToken === token && precedes(e, revoke))) continue;
         hits.push({
           evidence: [read.i, revoke.i],
           confidence: 'certain',
