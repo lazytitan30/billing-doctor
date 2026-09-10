@@ -5,7 +5,8 @@
 First release.
 
 - The `billing-doctor-timeline/1` format: six event kinds, a policy block, validation with warnings for real-looking tokens, user ids and emails.
-- 63 rules in ten groups, each with Google's rule quoted verbatim and dated (read 2026-09-09) in `src/google/docs.ts`.
+- 89 rules in eleven groups, each with Google's rule quoted verbatim and dated in `src/google/docs.ts` (read 2026-09-09, and 2026-09-10 for the second sweep).
+- Group K: the device and the Play Billing Library. Fourteen rules about what the app on the phone did, read from the numeric BillingResponseCode where a native app can see it and from the wrapper's error text where it cannot, at a lower confidence.
 - One minimal fixture per rule, three composite weeks, five clean lifecycles that must produce nothing.
 - Commands: `diagnose`, `init`, `validate`, `state`, `rtdn`, `redact`, `rules`, `rule`, `mcp`.
 - MCP server over stdio with six tools; Claude Code plugin and skill; Gemini CLI extension; MCP registry manifest.
