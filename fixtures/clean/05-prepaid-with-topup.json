@@ -9,7 +9,8 @@
       "master": "subscription",
       "explorer_prepaid": "subscription",
       "gems_100": "consumable",
-      "pack_deluxe": "non-consumable"
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
     }
   },
   "policy": {
