@@ -7,7 +7,7 @@ npx billing-doctor diagnose timeline.json
 ```
 
 - [The timeline format](timeline-format.md): the one file you build from your logs, your database and the support ticket.
-- The rules: 89 in eleven groups, each resting on a sentence from Google's documentation, quoted verbatim with the date it was read. `billing-doctor rules` lists them; `billing-doctor rule B1` prints one.
+- The rules: 93 in eleven groups, each resting on a sentence from Google's documentation, quoted verbatim with the date it was read. `billing-doctor rules` lists them; `billing-doctor rule B1` prints one.
 - [The repository](https://github.com/lazytitan30/billing-doctor): source, fixtures, tests, the MCP server, the Claude Code plugin and the Gemini CLI extension.
 
 ## When something specific broke

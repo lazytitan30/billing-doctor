@@ -8,6 +8,6 @@ Use its tools when a user reports a Play Billing problem (lost access, refund st
 - `diagnose_timeline` on a `billing-doctor-timeline/1` document (see the package's `docs/timeline-format.md`). Every finding carries evidence (event indexes), Google's rule with a dated link, a confidence and a next check.
 - `decode_rtdn` on a Pub/Sub push body: the type name and the next step, which is always to re-fetch the resource before touching state.
 - `explain_subscription_state` on a `purchases.subscriptionsv2` resource: state, access, expiry per item, acknowledgement deadline, linked token.
-- `list_rules` and `get_rule` for the 89-rule catalogue.
+- `list_rules` and `get_rule` for the 93-rule catalogue.
 
 It never acknowledges, consumes, refunds, revokes, cancels or defers anything.

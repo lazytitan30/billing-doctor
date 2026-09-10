@@ -34,7 +34,7 @@ Every finding carries the events it rests on, the mechanism, Google's rule quote
 
 You give it a **timeline**: one JSON file with what happened to one purchase, assembled from your logs, your database, the Cloud Console and the support ticket. The notifications Google sent, the API answers, what your backend wrote, what the user said. Tokens are pseudonyms; nothing real goes in the file.
 
-It checks the timeline against **89 rules** in eleven groups. Every one of them rests on a sentence from Google's own documentation, quoted verbatim with the URL and the date it was read:
+It checks the timeline against **93 rules** in eleven groups. Every one of them rests on a sentence from Google's own documentation, quoted verbatim with the URL and the date it was read:
 
 | Group | What it catches |
 |---|---|
@@ -126,7 +126,7 @@ Not an SDK, not a hosted service, not a subscription platform, not a dashboard, 
 
 ## Where this comes from
 
-The rules are Google's own documentation, turned into checks a machine can run. Every one of the 89 quotes a sentence Google published, with the page, the section and the date it was read, and all 89 live in one file (`src/google/docs.ts`) so a documentation change is a one-file diff with failing tests beside it. The sources are the Android developer site, the Play Developer API reference, the Play Console help centre and the Pub/Sub documentation.
+The rules are Google's own documentation, turned into checks a machine can run. Every one of the 93 quotes a sentence Google published, with the page, the section and the date it was read, and all 93 live in one file (`src/google/docs.ts`) so a documentation change is a one-file diff with failing tests beside it. The sources are the Android developer site, the Play Developer API reference, the Play Console help centre and the Pub/Sub documentation.
 
 Eight rules also carry a field observation from a live app, dated and marked as an observation, always beside Google's sentence and never in place of it. Those exist because documentation says what should happen and a support inbox says what does: a wrapper that never surfaces the response code, a plugin that returns the base plan id as the product id, a web fallback that resolves with nothing and looks like a sale.
 
