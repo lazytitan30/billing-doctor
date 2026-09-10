@@ -19,6 +19,9 @@ export interface GoogleRule {
 
 export const READ_ON = '2026-09-09';
 
+// The device-side pages and the pages behind the K group were read a day later.
+export const READ_ON_DEVICE = '2026-09-10';
+
 const URLS = {
   rtdn: 'https://developer.android.com/google/play/billing/rtdn-reference',
   subscriptionsv2: 'https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2',
@@ -38,6 +41,13 @@ const URLS = {
   managedPublishing: 'https://support.google.com/googleplay/android-developer/answer/9859654',
   closedTesting: 'https://support.google.com/googleplay/android-developer/answer/14151465',
   productsv2: 'https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.productsv2',
+  errors: 'https://developer.android.com/google/play/billing/errors',
+  responseCodes: 'https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode',
+  security: 'https://developer.android.com/google/play/billing/security',
+  oneTimeLifecycle: 'https://developer.android.com/google/play/billing/lifecycle/one-time',
+  priceChanges: 'https://developer.android.com/google/play/billing/price-changes',
+  migrate8: 'https://developer.android.com/google/play/billing/migrate-gpblv8',
+  refundHelp: 'https://support.google.com/googleplay/android-developer/answer/2741495',
 } as const;
 
 const MUST_CALL_API =
@@ -553,6 +563,220 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
     context: 'Google\'s expiry is UTC. A comparison against a local clock is off by the offset at every renewal boundary.',
     url: URLS.subscriptionsv2,
     readOn: READ_ON,
+  },
+
+  // ---- K. The device and the Play Billing Library ----
+  K1: {
+    title: 'BillingResponseCode: ITEM_UNAVAILABLE',
+    quote:
+      "The requested product is not available for purchase. Please ensure the product is available in the user's country. If you recently changed the country availability and are still receiving this error then it may be because of a propagation delay.",
+    context:
+      'A catalogue that comes back empty has a short list of causes: the installed build is not the one Play has (a different application id, or a build on no track), the product or base plan is not active, the country is wrong, or the change has not propagated. The errors page adds: "Make sure your app refreshes the product details via queryProductDetailsAsync as recommended."',
+    url: URLS.responseCodes,
+    readOn: READ_ON_DEVICE,
+  },
+  K2: {
+    title: 'Handle BillingResult response codes: SERVICE_DISCONNECTED',
+    quote:
+      'This allows the library to automatically attempt to re-establish the connection when a billing API call is made while the service is disconnected, significantly reducing the occurrences of this error.',
+    context:
+      'Said of automatic service reconnection, which the page recommends enabling. The connection also drops on its own when the Play Store updates itself in the background, so a call made before the first connection completes fails the same way.',
+    url: URLS.errors,
+    readOn: READ_ON_DEVICE,
+  },
+  K3: {
+    title: 'Handle BillingResult response codes: ITEM_ALREADY_OWNED',
+    quote:
+      "Call BillingClient.queryPurchasesAsync() after getting an ITEM_ALREADY_OWNED to check if the user has acquired the product, and if it's not the case implement a simple retry logic to reattempt the purchase.",
+    context:
+      'The reference adds that the cause is often a purchase that was never consumed or never acknowledged, or stale purchase information cached on the device by Play.',
+    url: URLS.errors,
+    readOn: READ_ON_DEVICE,
+  },
+  K4: {
+    title: 'Handle BillingResult response codes: avoiding ITEM_ALREADY_OWNED',
+    quote: "To avoid this error happening when the cause is not a cache issue, don't offer a product for purchase when the user already owns it.",
+    url: URLS.errors,
+    readOn: READ_ON_DEVICE,
+  },
+  K5: {
+    title: 'Handle BillingResult response codes: retrying',
+    quote: 'When a call to a Play Billing Library method returns a BillingResponseCode value that indicates a recoverable condition, you should retry the call.',
+    context:
+      'The page lists NETWORK_ERROR, SERVICE_TIMEOUT, SERVICE_DISCONNECTED, SERVICE_UNAVAILABLE, BILLING_UNAVAILABLE, ERROR, ITEM_ALREADY_OWNED and ITEM_NOT_OWNED as recoverable, and FEATURE_NOT_SUPPORTED, USER_CANCELED, ITEM_UNAVAILABLE and DEVELOPER_ERROR as not. On ERROR: "Sometimes internal Google Play problems that lead to ERROR are transient, and a retry with an exponential backoff can be implemented for mitigation."',
+    url: URLS.errors,
+    readOn: READ_ON_DEVICE,
+  },
+  K6: {
+    title: 'BillingResponseCode: DEVELOPER_ERROR',
+    quote:
+      'Error resulting from incorrect usage of the API. Examples where this error may occur: Invalid arguments such as providing an empty product list where required. Misconfiguration of the app such as not signing the app or not having the necessary permissions in the manifest.',
+    context: 'The errors page adds: "Make sure that you are correctly using the different Play Billing Library calls. Also, check the debug message for more info about the error." It is not retriable; retrying hides the mistake.',
+    url: URLS.responseCodes,
+    readOn: READ_ON_DEVICE,
+  },
+  K7: {
+    title: 'Handle BillingResult response codes: BILLING_UNAVAILABLE',
+    quote: 'Automatic retries are unlikely to help in this case. However, a manual retry can help if the user addresses the condition that caused the issue.',
+    context:
+      'The reference lists the causes: the Play Store app is out of date, the user is in an unsupported country, an enterprise administrator has disabled purchases, or Google Play cannot charge the payment method. The page also says to call isFeatureSupported() before using a feature.',
+    url: URLS.errors,
+    readOn: READ_ON_DEVICE,
+  },
+  K8: {
+    title: 'Integrate the library: product details',
+    quote: 'Caching ProductDetails objects is not recommended, as stale objects can cause launchBillingFlow() failures.',
+    url: URLS.integrate,
+    readOn: READ_ON_DEVICE,
+  },
+  K9: {
+    title: 'Integrate the library: one connection',
+    quote:
+      "It's recommended that you have one active BillingClient connection open at one time to avoid multiple PurchasesUpdatedListener callbacks for a single event.",
+    url: URLS.integrate,
+    readOn: READ_ON_DEVICE,
+  },
+  K10: {
+    title: 'Security: verification belongs on the backend',
+    quote:
+      'A special case of sensitive data and logic that should be handled in the backend is purchase verification and acknowledgement',
+    context:
+      'A purchase the device completed and the backend never saw is money taken with nothing recorded. The integration guide is why it happens and how to catch it: queryPurchasesAsync on connection and on resume covers "network loss during purchase" and purchases completed while the app was not running.',
+    url: URLS.security,
+    readOn: READ_ON_DEVICE,
+  },
+  K11: {
+    title: 'Integrate the library: one connection',
+    quote:
+      "It's recommended that you have one active BillingClient connection open at one time to avoid multiple PurchasesUpdatedListener callbacks for a single event.",
+    context: 'Overlapping catalogue queries are the same family of problem: two answers in flight, and the one that arrives last wins regardless of which is newer.',
+    observed:
+      'Seen in a live app, 2026-08: the native client did not handle concurrent product queries reliably, so app launch, shop mount, sign-in and resume raced each other. The fix was a single shared query and a generation number, so a late smaller answer can never overwrite a newer one.',
+    url: URLS.integrate,
+    readOn: READ_ON_DEVICE,
+  },
+  K12: {
+    title: 'purchases.subscriptionsv2: line item product id',
+    quote: "The purchased product ID (for example, 'monthly001').",
+    context:
+      'The product id is on the line item. The base plan id lives under offerDetails and names the plan, not the product. Some wrappers surface the base plan id as the identifier, so a catalogue keyed on it silently fails to find anything.',
+    observed:
+      'Seen in a live app, 2026-08: the plugin returned the base plan id as the identifier for subscriptions and the product id in a separate field, so the store had to map back before it could price anything.',
+    url: URLS.subscriptionsv2,
+    readOn: READ_ON_DEVICE,
+  },
+  K13: {
+    title: 'BillingResponseCode: BILLING_UNAVAILABLE',
+    quote:
+      "A user billing error occurred during processing. Examples where this error may occur: The Play Store app on the user's device is out of date. The user is in an unsupported country.",
+    context: 'A browser has no Play Store at all. A wrapper whose web fallback resolves with nothing rather than failing turns a money path into a silent no-op.',
+    observed:
+      'Seen in a live app, 2026-08: the plugin stub in a browser resolved with nothing instead of failing, so the shop appeared to buy something and granted nothing. The fix makes the web path throw.',
+    url: URLS.responseCodes,
+    readOn: READ_ON_DEVICE,
+  },
+  K14: {
+    title: 'BillingResponseCode: USER_CANCELED',
+    quote: 'Transaction was canceled by the user.',
+    context:
+      'The errors page lists USER_CANCELED among the codes that are not retriable. A cancellation is an outcome, not a failure, and retrying it or showing it as an error is a self-inflicted support ticket.',
+    observed:
+      'Seen in a live app, 2026-08: the wrapper reported a cancellation in two different shapes and only one was recognised, so the unrecognised path surfaced a raw purchase token in an alert.',
+    url: URLS.responseCodes,
+    readOn: READ_ON_DEVICE,
+  },
+
+  // ---- additions to the existing groups ----
+  A7: {
+    title: 'One-time purchase lifecycle: notifications',
+    quote:
+      'One-time purchase real-time developer notifications are only published if you have opted into them while configuring real-time developer notifications.',
+    context: 'The Console offers a narrower and a wider setting. With the narrower one, a one-time product can be bought, cancelled or refunded and nothing is ever published.',
+    url: URLS.oneTimeLifecycle,
+    readOn: READ_ON_DEVICE,
+  },
+  B10: {
+    title: 'Integrate the library: multi-quantity purchases',
+    quote: 'Your app is expected to handle multi-quantity purchases and grant entitlement based on the specified purchase quantity.',
+    context: 'The quantity is on the purchase: getQuantity() on the device, and the quantity field on the Developer API resource.',
+    url: URLS.integrate,
+    readOn: READ_ON_DEVICE,
+  },
+  B11: {
+    title: 'Subscription lifecycle: plan changes',
+    quote:
+      'Before offering upgrade, downgrade, or resubscribe options to a user in your app, you must acknowledge the existing subscription. Any plan change or resubscribe is blocked if the existing subscription is still pending acknowledgement.',
+    url: URLS.lifecycle,
+    readOn: READ_ON_DEVICE,
+  },
+  C8: {
+    title: 'Pub/Sub push subscriptions, and the RTDN reference',
+    quote:
+      'To send a negative acknowledgment for the message, return any other status code. If you send a negative acknowledgment or the acknowledgment deadline expires, Pub/Sub resends the message.',
+    context:
+      'A handler that answers a failing status never acknowledges the message, so Pub/Sub redelivers it for as long as the subscription retains it, and the state change it carried is never applied. One refund becomes a week of retries while the entitlement stands.',
+    url: URLS.pubsubPush,
+    readOn: READ_ON_DEVICE,
+  },
+  D11: {
+    title: 'Subscription lifecycle: the purchase token',
+    quote:
+      'The purchase token is valid from subscription signup until 60 days after expiration. After this date, the purchase token is no longer valid to use to call the Google Play Developer API.',
+    url: URLS.lifecycle,
+    readOn: READ_ON_DEVICE,
+  },
+  E7: {
+    title: 'Subscription lifecycle: pause',
+    quote:
+      'A SubscriptionNotification message with type SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED is sent when your user initiates a pause of their subscription. At this time, the user should keep access to their subscription until the next renewal date',
+    context: 'The pause is scheduled, not in effect. Access ends when SUBSCRIPTION_PAUSED arrives and the state reads PAUSED.',
+    url: URLS.lifecycle,
+    readOn: READ_ON_DEVICE,
+  },
+  E8: {
+    title: 'Change subscription prices: opt-in increases',
+    quote: 'If the user doesn\'t act and they reach the first renewal that the opt-in price will apply to, their subscription is automatically canceled and expired on that renewal date.',
+    context: 'That cancellation is a price decision, not the user walking away. Counting it as voluntary churn hides the cause of the loss.',
+    url: URLS.priceChanges,
+    readOn: READ_ON_DEVICE,
+  },
+  F5: {
+    title: 'Subscription lifecycle: resubscribing outside the app',
+    quote:
+      'The purchase status for this type of out-of-app purchase does not include a linkedPurchaseToken associated with the original purchase in that case, because the original subscription expired completely.',
+    context:
+      'The link is elsewhere: outOfAppPurchaseContext carries expiredPurchaseToken, the token of the last expired subscription, and expiredExternalAccountIdentifiers, the obfuscated ids that were set on it. It is present only on an unacknowledged resubscribe, so it must be read before acknowledging.',
+    url: URLS.lifecycle,
+    readOn: READ_ON_DEVICE,
+  },
+  F6: {
+    title: 'Subscriptions: upgrades and downgrades',
+    quote: 'If the old subscription was created using an obfuscated account ID, that same ID should be passed to the BillingFlowParams for upgrades and downgrades.',
+    url: URLS.subscriptions,
+    readOn: READ_ON_DEVICE,
+  },
+  G7: {
+    title: 'Play Console help: refund a subscription order',
+    quote: 'Refund only: If you refund an older order in a subscription, the order is refunded and the subscription remains active.',
+    context: 'Only refunding the most recent order removes the subscription and cancels future renewals. Refunding an older one returns money and changes nothing else.',
+    url: URLS.refundHelp,
+    readOn: READ_ON_DEVICE,
+  },
+  I6: {
+    title: 'Test your integration: license testers',
+    quote:
+      'For purchases from license testers, a purchase will be refunded after 3 minutes if your app does not acknowledge the purchase and you will receive an email about the cancellation.',
+    context: 'Three minutes in testing, three days in production. A broken acknowledgement path therefore looks like a mysterious instant refund on a test device, and like nothing at all until real money is involved.',
+    url: URLS.testing,
+    readOn: READ_ON_DEVICE,
+  },
+  J5: {
+    title: 'Security: use the purchase token as the key',
+    quote:
+      "Don't use orderId to check for duplicate purchases or as a primary key in your database, as not all purchases generate an orderId. In particular, purchases made with promo codes don't generate an orderId.",
+    context: 'The same page: "purchaseToken is globally unique, so you can safely use this value as a primary key in your database."',
+    url: URLS.security,
+    readOn: READ_ON_DEVICE,
   },
 };
 

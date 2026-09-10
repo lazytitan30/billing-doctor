@@ -13,15 +13,15 @@ import { RULES } from '../dist/engine/catalogue.js';
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const run = (args, options = {}) => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8', ...options });
 
-test('rules lists all 63 rules with ids, grouped', () => {
+test('rules lists all 89 rules with ids, grouped', () => {
   const r = run(['rules']);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /^A\. Configuration and permissions/m);
   assert.match(r.stdout, /^J\. Ledger integrity, retention, redaction/m);
-  assert.match(r.stdout, /63 rules\./);
+  assert.match(r.stdout, /89 rules\./);
   for (const rule of RULES) assert.match(r.stdout, new RegExp(`^  ${rule.id.padEnd(4)}`, 'm'));
   const json = run(['rules', '--json']);
-  assert.equal(JSON.parse(json.stdout).length, 63);
+  assert.equal(JSON.parse(json.stdout).length, 89);
 });
 
 test('rule B1 prints the quote, the link, the date, and the kit pointer without a kit', () => {

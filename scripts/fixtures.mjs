@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeFixtures as makeDG } from './fixtures-DG.mjs';
 import { makeFixtures as makeAHIJ } from './fixtures-AHIJ.mjs';
+import { makeFixtures as makeSweep2 } from './fixtures-sweep2.mjs';
 import { makeComposites } from './fixtures-composite.mjs';
 
 const SCHEMA = 'billing-doctor-timeline/1';
@@ -382,8 +383,8 @@ rules['C7-test-notification-applied'] = {
   expected: expect('C7', 'low', 'certain', [8, 9]),
 };
 
-const builders = { timeline, purchase, get, productGet, api, ledger, grant, rtdn, voided, support, opening, at, expect, SEC, MIN, HOUR, DAY, S, E, ACTIVE, GRACE, CANCELED, ON_HOLD, PAUSED, EXPIRED, PENDING_ACK };
-Object.assign(rules, makeDG(builders), makeAHIJ(builders));
+const builders = { timeline, purchase, get, productGet, api, ledger, grant, rtdn, voided, support, opening, at, millis, expect, SEC, MIN, HOUR, DAY, S, E, ACTIVE, GRACE, CANCELED, ON_HOLD, PAUSED, EXPIRED, PENDING_ACK, ACKED };
+Object.assign(rules, makeDG(builders), makeAHIJ(builders), makeSweep2(builders));
 const composites = makeComposites(builders);
 
 // ---- clean fixtures -------------------------------------------------------------------------

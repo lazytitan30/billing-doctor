@@ -1,0 +1,101 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_c1",
+      "productId": "coins_100",
+      "purchaseState": "PURCHASED",
+      "obfuscatedAccountId": "hm_1",
+      "quantity": 3
+    },
+    {
+      "t": "2026-09-01T10:00:02Z",
+      "kind": "api",
+      "call": "productsv2.get",
+      "token": "tok_c1",
+      "status": 200,
+      "productId": "coins_100",
+      "purchaseState": "PURCHASED",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+      "quantity": 3
+    },
+    {
+      "t": "2026-09-01T10:00:03Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_c1",
+      "userId": "u_1",
+      "tier": "coins",
+      "idempotencyKey": "tok_c1:grant",
+      "quantityGranted": 1
+    },
+    {
+      "t": "2026-09-01T10:00:04Z",
+      "kind": "api",
+      "call": "products.consume",
+      "token": "tok_c1",
+      "status": 200
+    },
+    {
+      "t": "2026-09-01T10:00:05Z",
+      "kind": "ledger",
+      "op": "consume",
+      "token": "tok_c1"
+    }
+  ]
+}

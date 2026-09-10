@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "ruleId": "G7",
+      "severity": "medium",
+      "confidence": "certain",
+      "evidence": [
+        8,
+        9,
+        10
+      ]
+    }
+  ]
+}

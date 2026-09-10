@@ -1,5 +1,5 @@
 import { defineRule } from '../rule.js';
-import { isApi, isApiRevoke, isOk, precedes } from '../helpers.js';
+import { isApi, isApiRevoke, isOk, isOkGet, isRevoke, precedes, type ApiEv } from '../helpers.js';
 
 // A refund returns money; only revoke ends access and future payments.
 export const G5 = defineRule({
@@ -17,6 +17,11 @@ export const G5 = defineRule({
       );
       if (!refund || !isApi(refund)) continue;
       if (events.some((e) => isApiRevoke(e) && precedes(refund, e))) continue;
+      // A refund of an older order that the ledger then revoked is G7, which
+      // says the same thing about renewals and carries the right next check.
+      const known = [...events].reverse().find((e): e is ApiEv => isOkGet(e) && typeof e.latestOrderId === 'string' && precedes(e, refund));
+      const older = known !== undefined && typeof refund.orderId === 'string' && known.latestOrderId !== refund.orderId;
+      if (older && events.some((e) => isRevoke(e) && precedes(refund, e))) continue;
       hits.push({
         evidence: [refund.i],
         confidence: 'certain' as const,

@@ -4,24 +4,31 @@
 // Run alone with: node --test tests/docs.test.js (after npm run build)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GOOGLE_RULES, googleRule, READ_ON } from '../dist/google/docs.js';
+import { GOOGLE_RULES, googleRule, READ_ON, READ_ON_DEVICE } from '../dist/google/docs.js';
 
-// The 63 rule ids of BRIEF section 5, by group.
+// The 89 rule ids of BRIEF section 5, by group.
 export const RULE_IDS = [
-  'A1', 'A2', 'A3', 'A4', 'A5', 'A6',
-  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9',
-  'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7',
-  'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10',
-  'E1', 'E2', 'E3', 'E4', 'E5', 'E6',
-  'F1', 'F2', 'F3', 'F4',
-  'G1', 'G2', 'G3', 'G4', 'G5', 'G6',
+  'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
+  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11',
+  'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8',
+  'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11',
+  'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8',
+  'F1', 'F2', 'F3', 'F4', 'F5', 'F6',
+  'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7',
   'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-  'I1', 'I2', 'I3', 'I4', 'I5',
-  'J1', 'J2', 'J3', 'J4',
+  'I1', 'I2', 'I3', 'I4', 'I5', 'I6',
+  'J1', 'J2', 'J3', 'J4', 'J5',
+  'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'K10', 'K11', 'K12', 'K13', 'K14',
 ];
 
-test('there are 63 rule ids and each has a Google fact', () => {
-  assert.equal(RULE_IDS.length, 63);
+// The ids added in the second sweep, read on the later date.
+export const SECOND_SWEEP = new Set([
+  'A7', 'B10', 'B11', 'C8', 'D11', 'E7', 'E8', 'F5', 'F6', 'G7', 'I6', 'J5',
+  'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'K10', 'K11', 'K12', 'K13', 'K14',
+]);
+
+test('there are 89 rule ids and each has a Google fact', () => {
+  assert.equal(RULE_IDS.length, 89);
   for (const id of RULE_IDS) {
     const rule = googleRule(id);
     assert.ok(rule.quote.length >= 20, `${id}: quote too short to be a rule`);
@@ -38,7 +45,11 @@ test('no entry exists for an id outside the catalogue, and the lookup throws', (
 
 test('the read date is the audit sweep date until the next re-read', () => {
   assert.equal(READ_ON, '2026-09-09');
-  for (const id of RULE_IDS) assert.equal(GOOGLE_RULES[id].readOn, READ_ON, id);
+  assert.equal(READ_ON_DEVICE, '2026-09-10');
+  for (const id of RULE_IDS) {
+    const expected = SECOND_SWEEP.has(id) ? READ_ON_DEVICE : READ_ON;
+    assert.equal(GOOGLE_RULES[id].readOn, expected, id);
+  }
 });
 
 test('quotes are Google\'s text and observations are kept apart', () => {

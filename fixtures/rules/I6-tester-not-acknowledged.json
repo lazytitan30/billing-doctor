@@ -1,0 +1,103 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_a1",
+      "productId": "basic_monthly",
+      "purchaseState": "PURCHASED",
+      "obfuscatedAccountId": "hm_1"
+    },
+    {
+      "t": "2026-09-01T10:00:02Z",
+      "kind": "api",
+      "call": "subscriptionsv2.get",
+      "token": "tok_a1",
+      "status": 200,
+      "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+      "lineItems": [
+        {
+          "productId": "basic_monthly",
+          "expiryTime": "2026-10-01T10:00:00Z",
+          "autoRenewingPlan": true
+        }
+      ],
+      "externalAccountIdentifiers": {
+        "obfuscatedExternalAccountId": "hm_1"
+      },
+      "testPurchase": true
+    },
+    {
+      "t": "2026-09-01T10:00:03Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_a1",
+      "userId": "u_1",
+      "tier": "standard",
+      "idempotencyKey": "tok_a1:grant",
+      "expiry": "2026-10-01T10:00:00Z",
+      "expirySource": "expiryTime",
+      "test": true
+    },
+    {
+      "t": "2026-09-01T10:20:00Z",
+      "kind": "support",
+      "note": "the tester was emailed a cancellation minutes after buying; nobody changed anything"
+    }
+  ]
+}

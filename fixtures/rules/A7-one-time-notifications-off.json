@@ -1,0 +1,104 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc",
+      "oneTimeProductNotifications": false
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_d1",
+      "productId": "pack_deluxe",
+      "purchaseState": "PURCHASED",
+      "obfuscatedAccountId": "hm_1"
+    },
+    {
+      "t": "2026-09-01T10:00:02Z",
+      "kind": "api",
+      "call": "productsv2.get",
+      "token": "tok_d1",
+      "status": 200,
+      "productId": "pack_deluxe",
+      "purchaseState": "PURCHASED",
+      "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING"
+    },
+    {
+      "t": "2026-09-01T10:00:03Z",
+      "kind": "ledger",
+      "op": "grant",
+      "token": "tok_d1",
+      "userId": "u_1",
+      "tier": "deluxe",
+      "idempotencyKey": "tok_d1:grant"
+    },
+    {
+      "t": "2026-09-01T10:00:04Z",
+      "kind": "api",
+      "call": "products.acknowledge",
+      "token": "tok_d1",
+      "status": 200
+    },
+    {
+      "t": "2026-09-01T10:00:05Z",
+      "kind": "ledger",
+      "op": "ack",
+      "token": "tok_d1"
+    },
+    {
+      "t": "2026-09-03T10:00:00Z",
+      "kind": "support",
+      "note": "a refunded pack stayed unlocked; the endpoint log has no one-time notifications at all"
+    }
+  ]
+}

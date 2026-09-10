@@ -1,0 +1,13 @@
+{
+  "findings": [
+    {
+      "ruleId": "K9",
+      "severity": "medium",
+      "confidence": "likely",
+      "evidence": [
+        0,
+        1
+      ]
+    }
+  ]
+}

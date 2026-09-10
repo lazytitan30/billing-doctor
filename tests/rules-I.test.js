@@ -7,8 +7,8 @@ import { listFixtures, assertRuleFixture } from './fixtures.js';
 const fixtures = listFixtures('rules', 'I');
 
 test('every I rule has a fixture', () => {
-  const ids = fixtures.map((name) => name.split('-')[0]);
-  assert.deepEqual(ids, ['I1', 'I2', 'I3', 'I4', 'I5']);
+  const ids = fixtures.map((name) => name.split('-')[0]).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  assert.deepEqual(ids, ['I1', 'I2', 'I3', 'I4', 'I5', 'I6']);
 });
 
 for (const name of fixtures) {

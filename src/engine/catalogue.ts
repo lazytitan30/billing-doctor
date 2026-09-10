@@ -65,6 +65,32 @@ import { J1 } from './rules/J1.js';
 import { J2 } from './rules/J2.js';
 import { J3 } from './rules/J3.js';
 import { J4 } from './rules/J4.js';
+import { A7 } from './rules/A7.js';
+import { B10 } from './rules/B10.js';
+import { B11 } from './rules/B11.js';
+import { C8 } from './rules/C8.js';
+import { D11 } from './rules/D11.js';
+import { E7 } from './rules/E7.js';
+import { E8 } from './rules/E8.js';
+import { F5 } from './rules/F5.js';
+import { F6 } from './rules/F6.js';
+import { G7 } from './rules/G7.js';
+import { I6 } from './rules/I6.js';
+import { J5 } from './rules/J5.js';
+import { K1 } from './rules/K1.js';
+import { K2 } from './rules/K2.js';
+import { K3 } from './rules/K3.js';
+import { K4 } from './rules/K4.js';
+import { K5 } from './rules/K5.js';
+import { K6 } from './rules/K6.js';
+import { K7 } from './rules/K7.js';
+import { K8 } from './rules/K8.js';
+import { K9 } from './rules/K9.js';
+import { K10 } from './rules/K10.js';
+import { K11 } from './rules/K11.js';
+import { K12 } from './rules/K12.js';
+import { K13 } from './rules/K13.js';
+import { K14 } from './rules/K14.js';
 
 export const GROUPS: Record<string, string> = {
   A: 'Configuration and permissions',
@@ -77,19 +103,21 @@ export const GROUPS: Record<string, string> = {
   H: 'Account binding and restore',
   I: 'Testing and Console',
   J: 'Ledger integrity, retention, redaction',
+  K: 'The device and the Play Billing Library',
 };
 
 export const RULES: Rule[] = [
-  A1, A2, A3, A4, A5, A6,
-  B1, B2, B3, B4, B5, B6, B7, B8, B9,
-  C1, C2, C3, C4, C5, C6, C7,
-  D1, D2, D3, D4, D5, D6, D7, D8, D9, D10,
-  E1, E2, E3, E4, E5, E6,
-  F1, F2, F3, F4,
-  G1, G2, G3, G4, G5, G6,
+  A1, A2, A3, A4, A5, A6, A7,
+  B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11,
+  C1, C2, C3, C4, C5, C6, C7, C8,
+  D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11,
+  E1, E2, E3, E4, E5, E6, E7, E8,
+  F1, F2, F3, F4, F5, F6,
+  G1, G2, G3, G4, G5, G6, G7,
   H1, H2, H3, H4, H5, H6,
-  I1, I2, I3, I4, I5,
-  J1, J2, J3, J4,
+  I1, I2, I3, I4, I5, I6,
+  J1, J2, J3, J4, J5,
+  K1, K2, K3, K4, K5, K6, K7, K8, K9, K10, K11, K12, K13, K14,
 ];
 
 export function ruleById(id: string): Rule | undefined {

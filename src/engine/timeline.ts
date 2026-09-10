@@ -30,9 +30,11 @@ const common = {
 export const APP_EVENT_TYPES = [
   'purchase_result', // PurchasesUpdatedListener fired, or the plugin's approved event
   'query_purchases', // queryPurchasesAsync ran
+  'query_products', // queryProductDetailsAsync ran: the catalogue lookup
   'app_start', // the app launched
   'app_resume', // the app came to the foreground
   'billing_connected', // BillingClient connected
+  'connection_lost', // the connection to the Play Store dropped
   'launch_billing_flow', // the purchase or replacement flow was launched
   'acknowledge', // acknowledgePurchase called from the device
   'consume', // consumeAsync called from the device
@@ -67,6 +69,20 @@ const appEvent = z.looseObject({
   // Pseudonyms for the Google account that paid and the app account signed in.
   googleAccount: z.string().optional(),
   appAccount: z.string().optional(),
+  // Google's BillingResponseCode, when the app can see it. Capacitor, Flutter
+  // and React Native wrappers frequently cannot, so errorCode and errorMessage
+  // carry whatever the wrapper threw instead. A rule accepts either.
+  responseCode: z.number().int().optional(),
+  errorCode: z.string().optional(),
+  errorMessage: z.string().optional(),
+  // On query_products: how many product ids were asked for and how many came back.
+  requested: z.number().int().nonnegative().optional(),
+  returned: z.number().int().nonnegative().optional(),
+  // How long the call took, when it was measured.
+  durationMs: z.number().nonnegative().optional(),
+  // The order id the device reported, when there is one. Promo-code purchases
+  // have none, which is the whole point of J5.
+  orderId: z.string().nullable().optional(),
 });
 
 // ---- api: a call to the Google Play Developer API and its answer -------------
@@ -107,6 +123,8 @@ const lineItem = z.looseObject({
   prepaidPlan: z.union([z.boolean(), z.looseObject({})]).optional(),
   // On a DEFERRED replacement: the product this item becomes at the next renewal.
   deferredItemReplacement: z.looseObject({ productId: z.string().optional() }).optional(),
+  // basePlanId is the plan, not the product. Confusing the two is K12.
+  offerDetails: z.looseObject({ basePlanId: z.string().optional(), offerId: z.string().optional() }).optional(),
 });
 
 const apiEvent = z.looseObject({
@@ -133,6 +151,19 @@ const apiEvent = z.looseObject({
     .optional(),
   pausedStateContext: z.looseObject({ autoResumeTime: isoTime.optional() }).optional(),
   canceledStateContext: z.string().optional(),
+  // The order id of the latest successful order on the resource. Refunding an
+  // older one behaves differently, which is G7.
+  latestOrderId: z.string().optional(),
+  // Present only on an unacknowledged resubscribe made outside the app, and the
+  // only way to link that purchase back to the expired one (F5).
+  outOfAppPurchaseContext: z
+    .looseObject({
+      expiredPurchaseToken: z.string().optional(),
+      expiredExternalAccountIdentifiers: z.looseObject({}).optional(),
+    })
+    .optional(),
+  // The order this call acted on, for orders.refund and orders.reviewRefund.
+  orderId: z.string().optional(),
   // Fields copied from a products or productsv2 resource.
   purchaseState: z.enum(PURCHASE_STATES).optional(),
   consumptionState: z.string().optional(),
@@ -185,6 +216,10 @@ const ledgerEvent = z.looseObject({
   planType: z.enum(['auto-renewing', 'prepaid']).optional(),
   // How many line items the backend read from the resource.
   lineItemsRead: z.number().int().positive().optional(),
+  // How many units a grant gave. A multi-quantity purchase granted as one is B10.
+  quantityGranted: z.number().int().positive().optional(),
+  // What the write was keyed on. Google says the order id is not safe as a key.
+  keyedOn: z.enum(['token', 'orderId']).optional(),
   // For op lookup: how the token was resolved and how many users matched.
   lookup: z.enum(['findOne', 'pseudonym', 'token']).optional(),
   matchedUsers: z.number().int().nonnegative().optional(),
@@ -279,6 +314,9 @@ const configSchema = z.looseObject({
     .looseObject({
       topicProject: z.string().optional(),
       pushEndpointAuth: z.enum(['none', 'oidc', 'shared-secret']).optional(),
+      // Console setting: one-time product notifications are published only if
+      // you opted into them (A7).
+      oneTimeProductNotifications: z.boolean().optional(),
     })
     .optional(),
   serviceAccountRoles: z.array(z.string()).optional(),
