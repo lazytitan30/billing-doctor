@@ -70,7 +70,7 @@ export function makeFixtures(b) {
   };
 
   const twoItems = [
-    { productId: 'explorer', expiryTime: E, autoRenewingPlan: true },
+    { productId: 'basic_monthly', expiryTime: E, autoRenewingPlan: true },
     { productId: 'addon_extra', expiryTime: at(E, 10 * DAY), autoRenewingPlan: true },
   ];
   rules['D7-only-first-line-item'] = {
@@ -118,13 +118,13 @@ export function makeFixtures(b) {
 
   rules['D10-prepaid-as-autorenewing'] = {
     timeline: timeline([
-      purchase('tok_p1', S, { productId: 'explorer_prepaid' }),
-      get('tok_p1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: E, productId: 'explorer_prepaid', prepaid: true, planDays: 30 }),
+      purchase('tok_p1', S, { productId: 'basic_prepaid' }),
+      get('tok_p1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: E, productId: 'basic_prepaid', prepaid: true, planDays: 30 }),
       grant('tok_p1', at(S, 3 * SEC), { expiry: E, extra: { planType: 'auto-renewing' } }),
       api('subscriptions.acknowledge', 'tok_p1', at(S, 4 * SEC)),
       ledger('ack', 'tok_p1', at(S, 5 * SEC)),
       rtdn(4, 'tok_p1', at(S, 9 * SEC), { messageId: 'm-1', eventTime: S }),
-      get('tok_p1', at(S, 10 * SEC), { expiry: E, productId: 'explorer_prepaid', prepaid: true, planDays: 30 }),
+      get('tok_p1', at(S, 10 * SEC), { expiry: E, productId: 'basic_prepaid', prepaid: true, planDays: 30 }),
       ledger('write', 'tok_p1', at(S, 11 * SEC), { messageId: 'm-1', fromState: ACTIVE }),
     ]),
     expected: expect('D10', 'medium', 'certain', [1, 2]),
@@ -196,14 +196,14 @@ export function makeFixtures(b) {
   const U = at(S, 9 * DAY + 2 * HOUR);
   const UE = at(U, 31 * DAY);
   const upgradeTail = (mode, grantExtra = {}, grantExpiry = UE) => [
-    { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'master', replacementMode: mode, oldToken: 'tok_a1' },
-    purchase('tok_b2', at(U, 5 * SEC), { productId: 'master', extra: { replacementMode: mode, oldToken: 'tok_a1' } }),
-    get('tok_b2', at(U, 6 * SEC), { ack: PENDING_ACK, expiry: UE, productId: 'master', linked: 'tok_a1' }),
-    grant('tok_b2', at(U, 8 * SEC), { tier: 'premium', expiry: grantExpiry, ...grantExtra }),
+    { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'plus_monthly', replacementMode: mode, oldToken: 'tok_a1' },
+    purchase('tok_b2', at(U, 5 * SEC), { productId: 'plus_monthly', extra: { replacementMode: mode, oldToken: 'tok_a1' } }),
+    get('tok_b2', at(U, 6 * SEC), { ack: PENDING_ACK, expiry: UE, productId: 'plus_monthly', linked: 'tok_a1' }),
+    grant('tok_b2', at(U, 8 * SEC), { tier: 'plus', expiry: grantExpiry, ...grantExtra }),
     api('subscriptions.acknowledge', 'tok_b2', at(U, 9 * SEC)),
     ledger('ack', 'tok_b2', at(U, 10 * SEC)),
     rtdn(4, 'tok_b2', at(U, 12 * SEC), { messageId: 'm-2', eventTime: at(U, 5 * SEC) }),
-    get('tok_b2', at(U, 13 * SEC), { expiry: UE, productId: 'master', linked: 'tok_a1' }),
+    get('tok_b2', at(U, 13 * SEC), { expiry: UE, productId: 'plus_monthly', linked: 'tok_a1' }),
     ledger('write', 'tok_b2', at(U, 14 * SEC), { messageId: 'm-2', fromState: ACTIVE }),
   ];
 
@@ -215,31 +215,31 @@ export function makeFixtures(b) {
   rules['F2-deferred-granted-early'] = {
     timeline: timeline([
       ...opening('tok_a1', S, { expiry: E, messageId: 'm-1' }),
-      { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'master', replacementMode: 'DEFERRED', oldToken: 'tok_a1' },
-      purchase('tok_b2', at(U, 5 * SEC), { productId: 'master', extra: { replacementMode: 'DEFERRED', oldToken: 'tok_a1' } }),
+      { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'plus_monthly', replacementMode: 'DEFERRED', oldToken: 'tok_a1' },
+      purchase('tok_b2', at(U, 5 * SEC), { productId: 'plus_monthly', extra: { replacementMode: 'DEFERRED', oldToken: 'tok_a1' } }),
       get('tok_b2', at(U, 6 * SEC), {
         ack: PENDING_ACK,
-        productId: 'master',
+        productId: 'plus_monthly',
         linked: 'tok_a1',
         extra: {
           lineItems: [
-            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'master' } },
-            { productId: 'master', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
+            { productId: 'basic_monthly', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'plus_monthly' } },
+            { productId: 'plus_monthly', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
           ],
         },
       }),
       ledger('revoke', 'tok_a1', at(U, 7 * SEC), { note: 'linked token invalidated' }),
-      grant('tok_b2', at(U, 8 * SEC), { tier: 'premium', expiry: at(E, 30 * DAY) }),
+      grant('tok_b2', at(U, 8 * SEC), { tier: 'plus', expiry: at(E, 30 * DAY) }),
       api('subscriptions.acknowledge', 'tok_b2', at(U, 9 * SEC)),
       ledger('ack', 'tok_b2', at(U, 10 * SEC)),
       rtdn(4, 'tok_b2', at(U, 12 * SEC), { messageId: 'm-2', eventTime: at(U, 5 * SEC) }),
       get('tok_b2', at(U, 13 * SEC), {
-        productId: 'master',
+        productId: 'plus_monthly',
         linked: 'tok_a1',
         extra: {
           lineItems: [
-            { productId: 'explorer', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'master' } },
-            { productId: 'master', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
+            { productId: 'basic_monthly', expiryTime: E, autoRenewingPlan: { autoRenewEnabled: false }, deferredItemReplacement: { productId: 'plus_monthly' } },
+            { productId: 'plus_monthly', expiryTime: at(E, 30 * DAY), autoRenewingPlan: true },
           ],
         },
       }),
@@ -296,13 +296,13 @@ export function makeFixtures(b) {
 
   rules['G3-partial-refund-full-revoke'] = {
     timeline: timeline([
-      purchase('tok_c1', S, { productId: 'gems_100', extra: { quantity: 3 } }),
-      productGet('tok_c1', at(S, 2 * SEC), { productId: 'gems_100', purchaseState: 'PURCHASED', extra: { quantity: 3 } }),
-      grant('tok_c1', at(S, 3 * SEC), { tier: 'gems' }),
+      purchase('tok_c1', S, { productId: 'coins_100', extra: { quantity: 3 } }),
+      productGet('tok_c1', at(S, 2 * SEC), { productId: 'coins_100', purchaseState: 'PURCHASED', extra: { quantity: 3 } }),
+      grant('tok_c1', at(S, 3 * SEC), { tier: 'coins' }),
       api('products.consume', 'tok_c1', at(S, 4 * SEC)),
       ledger('consume', 'tok_c1', at(S, 5 * SEC)),
       voided('tok_c1', at(S, 2 * DAY), { messageId: 'm-2', refundType: 2, productType: 2 }),
-      productGet('tok_c1', at(S, 2 * DAY + SEC), { productId: 'gems_100', purchaseState: 'PURCHASED', ack: 'ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED', extra: { quantity: 3, refundableQuantity: 2 } }),
+      productGet('tok_c1', at(S, 2 * DAY + SEC), { productId: 'coins_100', purchaseState: 'PURCHASED', ack: 'ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED', extra: { quantity: 3, refundableQuantity: 2 } }),
       ledger('revoke', 'tok_c1', at(S, 2 * DAY + 2 * SEC), { messageId: 'm-2' }),
     ]),
     expected: expect('G3', 'medium', 'certain', [5, 7]),

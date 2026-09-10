@@ -14,9 +14,9 @@
     "serviceAccountRoles": ["View financial data", "Manage orders and subscriptions"]
   },
   "events": [
-    { "t": "2026-09-01T10:00:00Z", "kind": "app", "type": "purchase_result", "token": "tok_a1", "productId": "explorer", "purchaseState": "PURCHASED", "obfuscatedAccountId": "hm_9f3c" },
+    { "t": "2026-09-01T10:00:00Z", "kind": "app", "type": "purchase_result", "token": "tok_a1", "productId": "basic_monthly", "purchaseState": "PURCHASED", "obfuscatedAccountId": "hm_9f3c" },
     { "t": "2026-09-01T10:00:02Z", "kind": "api", "call": "subscriptionsv2.get", "token": "tok_a1", "status": 200, "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE", "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING", "expiryTime": "2026-10-01T10:00:00Z", "linkedPurchaseToken": null, "testPurchase": false },
-    { "t": "2026-09-01T10:00:03Z", "kind": "ledger", "op": "grant", "token": "tok_a1", "userId": "u_1", "tier": "pro", "idempotencyKey": "tok_a1:grant" },
+    { "t": "2026-09-01T10:00:03Z", "kind": "ledger", "op": "grant", "token": "tok_a1", "userId": "u_1", "tier": "standard", "idempotencyKey": "tok_a1:grant" },
     { "t": "2026-09-01T10:00:04Z", "kind": "api", "call": "subscriptions.acknowledge", "token": "tok_a1", "status": 200 },
     { "t": "2026-09-01T10:00:09Z", "kind": "rtdn", "messageId": "m-1", "eventTimeMillis": 1788256800000, "notificationType": 4, "token": "tok_a1", "endpointStatus": 200 },
     { "t": "2026-09-14T08:00:00Z", "kind": "support", "note": "user says access disappeared" },

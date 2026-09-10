@@ -5,10 +5,10 @@
     "billingLibrary": "8.0.0",
     "backend": "node",
     "products": {
-      "explorer": "subscription",
-      "master": "subscription",
-      "explorer_prepaid": "subscription",
-      "gems_100": "consumable",
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
       "pack_deluxe": "non-consumable",
       "addon_extra": "subscription"
     }
@@ -53,7 +53,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_a1",
-      "productId": "explorer",
+      "productId": "basic_monthly",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1"
     },
@@ -67,7 +67,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -82,7 +82,7 @@
       "op": "grant",
       "token": "tok_a1",
       "userId": "u_1",
-      "tier": "pro",
+      "tier": "standard",
       "idempotencyKey": "tok_a1:grant",
       "expiry": "2026-10-01T10:00:00Z",
       "expirySource": "expiryTime"
@@ -119,7 +119,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -141,7 +141,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_c1",
-      "productId": "gems_100",
+      "productId": "coins_100",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1",
       "quantity": 3
@@ -152,7 +152,7 @@
       "call": "productsv2.get",
       "token": "tok_c1",
       "status": 200,
-      "productId": "gems_100",
+      "productId": "coins_100",
       "purchaseState": "PURCHASED",
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "quantity": 3
@@ -163,7 +163,7 @@
       "op": "grant",
       "token": "tok_c1",
       "userId": "u_1",
-      "tier": "gems",
+      "tier": "coins",
       "idempotencyKey": "tok_c1:grant"
     },
     {
@@ -199,7 +199,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -234,7 +234,7 @@
       "call": "productsv2.get",
       "token": "tok_c1",
       "status": 200,
-      "productId": "gems_100",
+      "productId": "coins_100",
       "purchaseState": "PURCHASED",
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "quantity": 3,
@@ -259,7 +259,7 @@
     {
       "t": "2026-09-06T10:00:00Z",
       "kind": "support",
-      "note": "user asks why the gems and the subscription both vanished"
+      "note": "user asks why the coins and the subscription both vanished"
     }
   ]
 }

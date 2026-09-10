@@ -5,10 +5,10 @@
     "billingLibrary": "8.0.0",
     "backend": "node",
     "products": {
-      "explorer": "subscription",
-      "master": "subscription",
-      "explorer_prepaid": "subscription",
-      "gems_100": "consumable",
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
       "pack_deluxe": "non-consumable",
       "addon_extra": "subscription"
     }
@@ -58,7 +58,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_a1",
-      "productId": "explorer",
+      "productId": "basic_monthly",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1"
     },
@@ -72,7 +72,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -87,7 +87,7 @@
       "op": "grant",
       "token": "tok_a1",
       "userId": "u_1",
-      "tier": "pro",
+      "tier": "standard",
       "idempotencyKey": "tok_a1:grant",
       "expiry": "2026-10-01T10:00:00Z",
       "expirySource": "expiryTime"
@@ -124,7 +124,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -145,7 +145,7 @@
       "t": "2026-09-10T12:00:00Z",
       "kind": "app",
       "type": "launch_billing_flow",
-      "productId": "master",
+      "productId": "plus_monthly",
       "replacementMode": "DEFERRED",
       "oldToken": "tok_a1"
     },
@@ -154,7 +154,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_b2",
-      "productId": "master",
+      "productId": "plus_monthly",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1",
       "replacementMode": "DEFERRED",
@@ -174,17 +174,17 @@
       },
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": {
             "autoRenewEnabled": false
           },
           "deferredItemReplacement": {
-            "productId": "master"
+            "productId": "plus_monthly"
           }
         },
         {
-          "productId": "master",
+          "productId": "plus_monthly",
           "expiryTime": "2026-10-31T10:00:00Z",
           "autoRenewingPlan": true
         }
@@ -203,7 +203,7 @@
       "op": "grant",
       "token": "tok_b2",
       "userId": "u_1",
-      "tier": "premium",
+      "tier": "plus",
       "idempotencyKey": "tok_b2:grant",
       "expiry": "2026-10-31T10:00:00Z",
       "expirySource": "expiryTime"
@@ -244,17 +244,17 @@
       },
       "lineItems": [
         {
-          "productId": "explorer",
+          "productId": "basic_monthly",
           "expiryTime": "2026-10-01T10:00:00Z",
           "autoRenewingPlan": {
             "autoRenewEnabled": false
           },
           "deferredItemReplacement": {
-            "productId": "master"
+            "productId": "plus_monthly"
           }
         },
         {
-          "productId": "master",
+          "productId": "plus_monthly",
           "expiryTime": "2026-10-31T10:00:00Z",
           "autoRenewingPlan": true
         }

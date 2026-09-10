@@ -5,10 +5,10 @@
     "billingLibrary": "8.0.0",
     "backend": "node",
     "products": {
-      "explorer": "subscription",
-      "master": "subscription",
-      "explorer_prepaid": "subscription",
-      "gems_100": "consumable",
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
       "pack_deluxe": "non-consumable",
       "addon_extra": "subscription"
     }
@@ -58,7 +58,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_p1",
-      "productId": "explorer_prepaid",
+      "productId": "basic_prepaid",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1"
     },
@@ -72,7 +72,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "lineItems": [
         {
-          "productId": "explorer_prepaid",
+          "productId": "basic_prepaid",
           "expiryTime": "2026-10-01T10:00:00Z",
           "prepaidPlan": true
         }
@@ -88,7 +88,7 @@
       "op": "grant",
       "token": "tok_p1",
       "userId": "u_1",
-      "tier": "pro",
+      "tier": "standard",
       "idempotencyKey": "tok_p1:grant",
       "expiry": "2026-10-01T10:00:00Z",
       "expirySource": "expiryTime",
@@ -126,7 +126,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer_prepaid",
+          "productId": "basic_prepaid",
           "expiryTime": "2026-10-01T10:00:00Z",
           "prepaidPlan": true
         }
@@ -149,7 +149,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_p2",
-      "productId": "explorer_prepaid",
+      "productId": "basic_prepaid",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1",
       "replacementMode": "CHARGE_FULL_PRICE",
@@ -165,7 +165,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "lineItems": [
         {
-          "productId": "explorer_prepaid",
+          "productId": "basic_prepaid",
           "expiryTime": "2026-10-31T10:00:00Z",
           "prepaidPlan": true
         }
@@ -189,7 +189,7 @@
       "op": "grant",
       "token": "tok_p2",
       "userId": "u_1",
-      "tier": "pro",
+      "tier": "standard",
       "idempotencyKey": "tok_p2:grant",
       "expiry": "2026-10-31T10:00:00Z",
       "expirySource": "expiryTime",
@@ -227,7 +227,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer_prepaid",
+          "productId": "basic_prepaid",
           "expiryTime": "2026-10-31T10:00:00Z",
           "prepaidPlan": true
         }
@@ -279,7 +279,7 @@
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
       "lineItems": [
         {
-          "productId": "explorer_prepaid",
+          "productId": "basic_prepaid",
           "expiryTime": "2026-10-31T10:00:00Z",
           "prepaidPlan": true
         }

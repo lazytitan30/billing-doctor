@@ -38,10 +38,10 @@ const POLICY = {
 };
 
 const PRODUCTS = {
-  explorer: 'subscription',
-  master: 'subscription',
-  explorer_prepaid: 'subscription',
-  gems_100: 'consumable',
+  basic_monthly: 'subscription',
+  plus_monthly: 'subscription',
+  basic_prepaid: 'subscription',
+  coins_100: 'consumable',
   pack_deluxe: 'non-consumable',
   addon_extra: 'subscription',
 };
@@ -63,14 +63,14 @@ const purchase = (token, t, o = {}) => ({
   kind: 'app',
   type: 'purchase_result',
   token,
-  productId: o.productId ?? 'explorer',
+  productId: o.productId ?? 'basic_monthly',
   purchaseState: o.purchaseState ?? 'PURCHASED',
   obfuscatedAccountId: o.accountId ?? 'hm_1',
   ...o.extra,
 });
 
 const get = (token, t, o = {}) => {
-  const productId = o.productId ?? 'explorer';
+  const productId = o.productId ?? 'basic_monthly';
   const event = {
     t,
     kind: 'api',
@@ -113,7 +113,7 @@ const grant = (token, t, o = {}) => ({
   op: 'grant',
   token,
   userId: o.userId ?? 'u_1',
-  tier: o.tier ?? 'pro',
+  tier: o.tier ?? 'standard',
   idempotencyKey: o.key ?? `${token}:grant`,
   ...(o.expiry ? { expiry: o.expiry, expirySource: o.expirySource ?? 'expiryTime' } : {}),
   ...o.extra,
@@ -150,7 +150,7 @@ const support = (t, note) => ({ t, kind: 'support', note });
 // acknowledge, record it, notification 4, re-fetch, record it. Eight events.
 function opening(token, start, o = {}) {
   const expiry = o.expiry ?? at(start, 30 * DAY);
-  const productId = o.productId ?? 'explorer';
+  const productId = o.productId ?? 'basic_monthly';
   return [
     purchase(token, start, { productId, accountId: o.accountId }),
     get(token, at(start, 2 * SEC), { ack: PENDING_ACK, expiry, productId, accountId: o.accountId, prepaid: o.prepaid, planDays: o.planDays, linked: o.linked }),
@@ -227,9 +227,9 @@ rules['B4-ack-on-renewal'] = {
 
 rules['B5-consumable-acknowledged'] = {
   timeline: timeline([
-    purchase('tok_c1', S, { productId: 'gems_100' }),
-    productGet('tok_c1', at(S, 2 * SEC), { productId: 'gems_100', purchaseState: 'PURCHASED', extra: { quantity: 1 } }),
-    grant('tok_c1', at(S, 3 * SEC), { tier: 'gems' }),
+    purchase('tok_c1', S, { productId: 'coins_100' }),
+    productGet('tok_c1', at(S, 2 * SEC), { productId: 'coins_100', purchaseState: 'PURCHASED', extra: { quantity: 1 } }),
+    grant('tok_c1', at(S, 3 * SEC), { tier: 'coins' }),
     api('products.acknowledge', 'tok_c1', at(S, 4 * SEC)),
     ledger('ack', 'tok_c1', at(S, 5 * SEC)),
   ]),
@@ -281,11 +281,11 @@ rules['B8-ack-failed-client-told-success'] = {
 
 rules['B9-prepaid-unacknowledged'] = {
   timeline: timeline([
-    purchase('tok_p1', S, { productId: 'explorer_prepaid' }),
-    get('tok_p1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: at(S, 3 * DAY), productId: 'explorer_prepaid', prepaid: true, planDays: 3 }),
+    purchase('tok_p1', S, { productId: 'basic_prepaid' }),
+    get('tok_p1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: at(S, 3 * DAY), productId: 'basic_prepaid', prepaid: true, planDays: 3 }),
     grant('tok_p1', at(S, 3 * SEC), { expiry: at(S, 3 * DAY), extra: { planType: 'prepaid' } }),
     rtdn(4, 'tok_p1', at(S, 9 * SEC), { messageId: 'm-1', eventTime: S }),
-    get('tok_p1', at(S, 10 * SEC), { ack: PENDING_ACK, expiry: at(S, 3 * DAY), productId: 'explorer_prepaid', prepaid: true, planDays: 3 }),
+    get('tok_p1', at(S, 10 * SEC), { ack: PENDING_ACK, expiry: at(S, 3 * DAY), productId: 'basic_prepaid', prepaid: true, planDays: 3 }),
     ledger('write', 'tok_p1', at(S, 11 * SEC), { messageId: 'm-1', fromState: ACTIVE }),
     support(at(S, 2 * DAY + 2 * HOUR), 'user says the prepaid plan vanished'),
   ]),
@@ -412,15 +412,15 @@ const U = at(S, 9 * DAY + 2 * HOUR); // the upgrade, in clean 02
 const UE = at(U, 31 * DAY);
 clean['02-upgrade-with-invalidation'] = timeline([
   ...opening('tok_a1', S, { expiry: E, messageId: 'm-1' }),
-  { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'master', replacementMode: 'WITH_TIME_PRORATION', oldToken: 'tok_a1' },
-  purchase('tok_b2', at(U, 5 * SEC), { productId: 'master', extra: { replacementMode: 'WITH_TIME_PRORATION', oldToken: 'tok_a1' } }),
-  get('tok_b2', at(U, 6 * SEC), { ack: PENDING_ACK, expiry: UE, productId: 'master', linked: 'tok_a1' }),
+  { t: U, kind: 'app', type: 'launch_billing_flow', productId: 'plus_monthly', replacementMode: 'WITH_TIME_PRORATION', oldToken: 'tok_a1' },
+  purchase('tok_b2', at(U, 5 * SEC), { productId: 'plus_monthly', extra: { replacementMode: 'WITH_TIME_PRORATION', oldToken: 'tok_a1' } }),
+  get('tok_b2', at(U, 6 * SEC), { ack: PENDING_ACK, expiry: UE, productId: 'plus_monthly', linked: 'tok_a1' }),
   ledger('revoke', 'tok_a1', at(U, 7 * SEC), { note: 'linked token invalidated at replacement' }),
-  grant('tok_b2', at(U, 8 * SEC), { tier: 'premium', expiry: UE }),
+  grant('tok_b2', at(U, 8 * SEC), { tier: 'plus', expiry: UE }),
   api('subscriptions.acknowledge', 'tok_b2', at(U, 9 * SEC)),
   ledger('ack', 'tok_b2', at(U, 10 * SEC)),
   rtdn(4, 'tok_b2', at(U, 12 * SEC), { messageId: 'm-2', eventTime: at(U, 5 * SEC) }),
-  get('tok_b2', at(U, 13 * SEC), { expiry: UE, productId: 'master', linked: 'tok_a1' }),
+  get('tok_b2', at(U, 13 * SEC), { expiry: UE, productId: 'plus_monthly', linked: 'tok_a1' }),
   ledger('write', 'tok_b2', at(U, 14 * SEC), { messageId: 'm-2', fromState: ACTIVE }),
   rtdn(13, 'tok_a1', at(U, 20 * SEC), { messageId: 'm-3', eventTime: at(U, 5 * SEC) }),
   get('tok_a1', at(U, 21 * SEC), { state: EXPIRED, expiry: at(U, 5 * SEC), extra: { canceledStateContext: 'replacementCancellation' } }),
@@ -464,20 +464,20 @@ clean['04-pause-then-resume'] = timeline([
 const T = at(S, 24 * DAY + 2 * HOUR); // the top-up, in clean 05
 const TE = at(S, 60 * DAY);
 clean['05-prepaid-with-topup'] = timeline([
-  ...opening('tok_p1', S, { expiry: E, productId: 'explorer_prepaid', prepaid: true, planDays: 30, messageId: 'm-1', grantExtra: { planType: 'prepaid' } }),
-  purchase('tok_p2', T, { productId: 'explorer_prepaid', extra: { replacementMode: 'CHARGE_FULL_PRICE', oldToken: 'tok_p1' } }),
-  get('tok_p2', at(T, 2 * SEC), { ack: PENDING_ACK, expiry: TE, productId: 'explorer_prepaid', prepaid: true, planDays: 30, linked: 'tok_p1' }),
+  ...opening('tok_p1', S, { expiry: E, productId: 'basic_prepaid', prepaid: true, planDays: 30, messageId: 'm-1', grantExtra: { planType: 'prepaid' } }),
+  purchase('tok_p2', T, { productId: 'basic_prepaid', extra: { replacementMode: 'CHARGE_FULL_PRICE', oldToken: 'tok_p1' } }),
+  get('tok_p2', at(T, 2 * SEC), { ack: PENDING_ACK, expiry: TE, productId: 'basic_prepaid', prepaid: true, planDays: 30, linked: 'tok_p1' }),
   ledger('revoke', 'tok_p1', at(T, 3 * SEC), { note: 'replaced by the top-up token' }),
   grant('tok_p2', at(T, 4 * SEC), { expiry: TE, extra: { planType: 'prepaid' } }),
   api('subscriptions.acknowledge', 'tok_p2', at(T, 5 * SEC)),
   ledger('ack', 'tok_p2', at(T, 6 * SEC)),
   rtdn(4, 'tok_p2', at(T, 9 * SEC), { messageId: 'm-2', eventTime: T }),
-  get('tok_p2', at(T, 10 * SEC), { expiry: TE, productId: 'explorer_prepaid', prepaid: true, planDays: 30, linked: 'tok_p1' }),
+  get('tok_p2', at(T, 10 * SEC), { expiry: TE, productId: 'basic_prepaid', prepaid: true, planDays: 30, linked: 'tok_p1' }),
   ledger('write', 'tok_p2', at(T, 11 * SEC), { messageId: 'm-2', fromState: ACTIVE }),
   api('voidedpurchases.list', undefined, at(S, 29 * DAY), { extra: { startTime: at(S, -DAY) } }),
   api('voidedpurchases.list', undefined, at(S, 59 * DAY), { extra: { startTime: at(S, 29 * DAY) } }),
   rtdn(13, 'tok_p2', at(TE, 5 * SEC), { messageId: 'm-3', eventTime: TE }),
-  get('tok_p2', at(TE, 6 * SEC), { state: EXPIRED, expiry: TE, productId: 'explorer_prepaid', prepaid: true, planDays: 30 }),
+  get('tok_p2', at(TE, 6 * SEC), { state: EXPIRED, expiry: TE, productId: 'basic_prepaid', prepaid: true, planDays: 30 }),
   ledger('revoke', 'tok_p2', at(TE, 7 * SEC), { messageId: 'm-3', fromState: EXPIRED }),
 ]);
 

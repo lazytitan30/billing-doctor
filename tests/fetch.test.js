@@ -72,7 +72,7 @@ before(async () => {
             kind: 'androidpublisher#subscriptionPurchaseV2',
             subscriptionState: 'SUBSCRIPTION_STATE_EXPIRED',
             acknowledgementState: 'ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED',
-            lineItems: [{ productId: 'explorer', expiryTime: '2026-10-01T10:00:00Z', autoRenewingPlan: { autoRenewEnabled: false } }],
+            lineItems: [{ productId: 'basic_monthly', expiryTime: '2026-10-01T10:00:00Z', autoRenewingPlan: { autoRenewEnabled: false } }],
             linkedPurchaseToken: LINKED_REAL,
             testPurchase: {},
             externalAccountIdentifiers: { obfuscatedExternalAccountId: 'hm_1' },

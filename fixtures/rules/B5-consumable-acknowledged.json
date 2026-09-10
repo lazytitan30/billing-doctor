@@ -5,10 +5,10 @@
     "billingLibrary": "8.0.0",
     "backend": "node",
     "products": {
-      "explorer": "subscription",
-      "master": "subscription",
-      "explorer_prepaid": "subscription",
-      "gems_100": "consumable",
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
       "pack_deluxe": "non-consumable",
       "addon_extra": "subscription"
     }
@@ -58,7 +58,7 @@
       "kind": "app",
       "type": "purchase_result",
       "token": "tok_c1",
-      "productId": "gems_100",
+      "productId": "coins_100",
       "purchaseState": "PURCHASED",
       "obfuscatedAccountId": "hm_1"
     },
@@ -68,7 +68,7 @@
       "call": "productsv2.get",
       "token": "tok_c1",
       "status": 200,
-      "productId": "gems_100",
+      "productId": "coins_100",
       "purchaseState": "PURCHASED",
       "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
       "quantity": 1
@@ -79,7 +79,7 @@
       "op": "grant",
       "token": "tok_c1",
       "userId": "u_1",
-      "tier": "gems",
+      "tier": "coins",
       "idempotencyKey": "tok_c1:grant"
     },
     {

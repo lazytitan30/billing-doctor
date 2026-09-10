@@ -8,13 +8,13 @@
   "linkedPurchaseToken": "tok_a1",
   "lineItems": [
     {
-      "productId": "master",
+      "productId": "plus_monthly",
       "expiryTime": "2026-10-01T10:00:00Z",
       "autoRenewingPlan": {
         "autoRenewEnabled": true
       },
       "offerDetails": {
-        "basePlanId": "monthly-master"
+        "basePlanId": "monthly-plus"
       },
       "latestSuccessfulOrderId": "GPA.0000-0000-0000-00000"
     }

@@ -90,7 +90,7 @@ test('expired says revoke', () => {
 
 test('a deferred replacement is named and not granted early', () => {
   const e = explainSubscription(fixture('deferred-replacement.json'), { now });
-  assert.ok(e.lines.some((l) => /Deferred replacement: becomes master at the next renewal/.test(l)));
+  assert.ok(e.lines.some((l) => /Deferred replacement: becomes plus_monthly at the next renewal/.test(l)));
 });
 
 test('an unknown state is treated as no access and says to fetch again', () => {

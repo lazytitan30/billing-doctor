@@ -86,7 +86,7 @@ Exit codes: 0 nothing to report, 1 a high finding (or an input that could not be
   "app": { "packageName": "com.example.app", "billingLibrary": "8.0.0", "backend": "node" },
   "policy": { "grantOn": ["SUBSCRIPTION_STATE_ACTIVE", "SUBSCRIPTION_STATE_IN_GRACE_PERIOD", "SUBSCRIPTION_STATE_CANCELED"], "ackWithinHours": 72 },
   "events": [
-    { "t": "2026-09-01T10:00:00Z", "kind": "app", "type": "purchase_result", "token": "tok_a1", "productId": "explorer", "purchaseState": "PURCHASED" },
+    { "t": "2026-09-01T10:00:00Z", "kind": "app", "type": "purchase_result", "token": "tok_a1", "productId": "basic_monthly", "purchaseState": "PURCHASED" },
     { "t": "2026-09-01T10:00:02Z", "kind": "api", "call": "subscriptionsv2.get", "token": "tok_a1", "status": 200, "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE", "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING", "expiryTime": "2026-10-01T10:00:00Z" },
     { "t": "2026-09-01T10:00:03Z", "kind": "ledger", "op": "grant", "token": "tok_a1", "userId": "u_1", "idempotencyKey": "tok_a1:grant" }
   ]

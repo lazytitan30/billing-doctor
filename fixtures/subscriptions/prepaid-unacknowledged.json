@@ -7,7 +7,7 @@
   "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
   "lineItems": [
     {
-      "productId": "explorer",
+      "productId": "basic_prepaid",
       "expiryTime": "2026-09-04T10:00:00Z",
       "prepaidPlan": {
         "allowExtendAfterTime": "2026-09-03T10:00:00Z"

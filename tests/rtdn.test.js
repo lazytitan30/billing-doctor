@@ -53,7 +53,7 @@ test('a one-time product cancellation decodes with the sku', () => {
   const d = decodeRtdn(fixture('one-time-canceled.json'));
   assert.equal(d.notification, 'oneTimeProduct');
   assert.equal(d.type.name, 'ONE_TIME_PRODUCT_CANCELED');
-  assert.equal(d.sku, 'gems_100');
+  assert.equal(d.sku, 'coins_100');
   assert.match(d.nextStep, /nothing to grant/);
 });
 

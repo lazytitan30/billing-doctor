@@ -7,7 +7,7 @@
   "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
   "lineItems": [
     {
-      "productId": "explorer",
+      "productId": "basic_monthly",
       "expiryTime": "2026-10-01T10:00:00Z",
       "autoRenewingPlan": {
         "autoRenewEnabled": false
@@ -17,7 +17,7 @@
       },
       "latestSuccessfulOrderId": "GPA.0000-0000-0000-00000",
       "deferredItemReplacement": {
-        "productId": "master"
+        "productId": "plus_monthly"
       }
     }
   ],

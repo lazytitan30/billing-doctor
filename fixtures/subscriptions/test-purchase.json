@@ -7,7 +7,7 @@
   "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
   "lineItems": [
     {
-      "productId": "explorer",
+      "productId": "basic_monthly",
       "expiryTime": "2026-09-01T10:05:00Z",
       "autoRenewingPlan": {
         "autoRenewEnabled": true
