@@ -105,9 +105,19 @@ Configure it as command `npx`, args `["-y", "billing-doctor", "mcp"]`. For Claud
 
 The free tool is complete on its own. The paid **Incident Kit** is a folder of files that makes the fix faster: a runbook entry per rule (the symptom as the user reports it, the mechanism, the fix, the regression test to add), a set of realistic incident timelines to replay against your own handler in CI, a TypeScript reference implementation of a verify endpoint, an RTDN handler and a reconciliation job, and checklists for the Play Console, Cloud setup, license testing and the Billing Library 8 and 9 migration. Drop the folder next to the tool as `./billing-doctor-kit` (or set `BILLING_DOCTOR_KIT`) and `billing-doctor rule G2` prints the runbook. There is no licence server and no phone-home; the kit is files.
 
+## The one optional network feature
+
+`diagnose --fetch` reads `purchases.subscriptionsv2.get` for every token in a timeline with your own service-account key and appends Google's answers as `api` events, so a timeline built from logs gets Google's current view of each purchase. Off by default; nothing goes anywhere but Google.
+
+```bash
+billing-doctor diagnose timeline.json --fetch --service-account ./key.json --token-map ./tokens.json --out augmented.json
+```
+
+The timeline keeps its pseudonyms: `tokens.json` maps `tok_a1` to the real purchase token and stays on your machine; the appended events carry the pseudonym and the written file never contains a real token. The key needs the "View financial data" permission in the Play Console. Subscriptions only; one-time products are not fetched.
+
 ## Privacy
 
-No network calls by default. No telemetry, ever. Your logs never leave your machine. The one optional network feature, `diagnose --fetch`, uses your own service-account key to read `purchases.subscriptionsv2` for the tokens in a timeline, and nothing goes anywhere but Google.
+No network calls by default. No telemetry, ever. Your logs never leave your machine. The one optional network feature above uses your own key and talks only to Google.
 
 ## What it is not
 

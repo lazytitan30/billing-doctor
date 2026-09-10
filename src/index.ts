@@ -35,4 +35,6 @@ export { GOOGLE_RULES, googleRule, READ_ON } from './google/docs.js';
 export { redact, pseudonymForToken, pseudonymForUser, maskOrderId } from './redact.js';
 export type { RedactResult, RedactOptions } from './redact.js';
 export { findKit, runbookEntry, KIT_FOLDER } from './kit.js';
+export { fetchForTimeline, signJwt, loadServiceAccount } from './fetch.js';
+export type { FetchOptions, FetchResult, ServiceAccount } from './fetch.js';
 export type { GoogleRule } from './google/docs.js';
