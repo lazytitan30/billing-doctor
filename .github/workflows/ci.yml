@@ -6,12 +6,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       # Report both versions. Cancelling the other one hid a green
       # Node 22 behind a red Node 20 and wasted a round trip.
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node: [20, 22]
     steps:
       - uses: actions/checkout@v4
@@ -22,3 +23,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: node scripts/preflight.mjs
+      # Last, and on every platform: install the packed tarball into an empty
+      # directory and use it the way a stranger does.
+      - run: node scripts/acceptance.mjs

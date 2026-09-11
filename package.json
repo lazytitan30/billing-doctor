@@ -57,7 +57,8 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test --test-concurrency=1",
     "preflight": "npm run build && node scripts/preflight.mjs",
-    "prepublishOnly": "npm run preflight",
+    "acceptance": "node scripts/acceptance.mjs",
+    "prepublishOnly": "npm run preflight && npm run acceptance",
     "prepack": "npm run build"
   },
   "dependencies": {
