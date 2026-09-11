@@ -4,7 +4,7 @@
 import { parseArgs } from 'node:util';
 import { RULES, GROUPS, ruleById } from '../engine/catalogue.js';
 import { googleRule } from '../google/docs.js';
-import { findKit, runbookEntry, KIT_POINTER } from '../kit.js';
+import { findKit, kitPathIsWrong, runbookEntry, KIT_POINTER } from '../kit.js';
 import type { Rule } from '../engine/rule.js';
 
 export const RULES_HELP = `Usage: billing-doctor rules [--json]
@@ -92,6 +92,8 @@ export function runRule(argv: string[]): number {
     return 2;
   }
   const kitDir = findKit(values.kit);
+  if (kitPathIsWrong(values.kit)) process.stderr.write(`--kit ${values.kit} is not a kit folder; it needs a runbook/ directory inside it
+`);
   if (values.json) {
     console.log(
       JSON.stringify(

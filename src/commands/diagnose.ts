@@ -7,7 +7,7 @@ import { parseTimeline } from '../engine/timeline.js';
 import { diagnose } from '../engine/diagnose.js';
 import { formatFindings } from '../engine/findings.js';
 import { VERSION } from '../index.js';
-import { findKit, runbookEntry } from '../kit.js';
+import { findKit, kitPathIsWrong, runbookEntry } from '../kit.js';
 import { fetchForTimeline } from '../fetch.js';
 
 export const DIAGNOSE_HELP = `Usage: billing-doctor diagnose <timeline.json> [--json] [--rules B1,C3] [--kit <path>]
@@ -96,6 +96,8 @@ export async function runDiagnose(argv: string[]): Promise<number> {
   const rules = values.rules ? values.rules.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
   const result = diagnose(timeline, { rules });
   const kitDir = findKit(values.kit);
+  if (kitPathIsWrong(values.kit)) process.stderr.write(`--kit ${values.kit} is not a kit folder; it needs a runbook/ directory inside it
+`);
   const runbook = (ruleId: string) => runbookEntry(kitDir, ruleId);
 
   if (values.json) {

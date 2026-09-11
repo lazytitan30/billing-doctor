@@ -17,7 +17,7 @@
 // artifact can. So this runs last, against the thing that would actually be
 // published, and CI runs it on every push.
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -33,13 +33,12 @@ function check(label, ok, detail = '') {
 }
 
 // Run a command in the sandbox and return its output and exit code, never throwing.
+// Both streams, whether the command succeeded or not. A warning printed to
+// stderr on a successful run is still something a user sees, so a check that
+// reads only stdout would miss it.
 function run(cwd, cmd, args, input) {
-  try {
-    const stdout = execFileSync(cmd, args, { cwd, encoding: 'utf8', input, stdio: ['pipe', 'pipe', 'pipe'], shell: win });
-    return { code: 0, out: stdout };
-  } catch (err) {
-    return { code: err.status ?? 1, out: `${err.stdout ?? ''}${err.stderr ?? ''}` };
-  }
+  const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', input, shell: win });
+  return { code: r.status ?? 1, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
 }
 
 const sandbox = mkdtempSync(join(tmpdir(), 'billing-doctor-acceptance-'));

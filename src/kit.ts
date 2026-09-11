@@ -17,13 +17,27 @@ function isDir(path: string): boolean {
   }
 }
 
+function isKit(candidate: string): boolean {
+  const path = resolve(candidate);
+  return isDir(path) && isDir(join(path, 'runbook'));
+}
+
+// An explicit --kit is the answer, right or wrong. Falling back to a kit found
+// somewhere else would quietly read a different folder than the one asked for,
+// which is worse than saying nothing: the reader would trust runbook text that
+// did not come from where they pointed.
 export function findKit(explicit?: string, env: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()): string | undefined {
-  const candidates = [explicit, env.BILLING_DOCTOR_KIT, join(cwd, KIT_FOLDER)].filter((p): p is string => Boolean(p));
-  for (const candidate of candidates) {
-    const path = resolve(candidate);
-    if (isDir(path) && isDir(join(path, 'runbook'))) return path;
+  if (explicit) return isKit(explicit) ? resolve(explicit) : undefined;
+  for (const candidate of [env.BILLING_DOCTOR_KIT, join(cwd, KIT_FOLDER)].filter((p): p is string => Boolean(p))) {
+    if (isKit(candidate)) return resolve(candidate);
   }
   return undefined;
+}
+
+// True when the reader named a folder that is not a kit, so a command can say
+// so rather than leaving them wondering why the runbook never appears.
+export function kitPathIsWrong(explicit?: string): boolean {
+  return Boolean(explicit) && !isKit(explicit as string);
 }
 
 // The runbook entry for a rule, when the kit is present. Returns undefined
