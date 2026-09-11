@@ -8,6 +8,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      # Report both versions. Cancelling the other one hid a green
+      # Node 22 behind a red Node 20 and wasted a round trip.
+      fail-fast: false
       matrix:
         node: [20, 22]
     steps:
