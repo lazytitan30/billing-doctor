@@ -4,6 +4,8 @@
 // column is Google's rule; the developer's own policy is applied beside it,
 // never instead of it.
 
+import { own } from '../engine/helpers.js';
+
 export type Access = 'yes' | 'no' | 'until-expiry' | 'not-yet';
 
 export interface StateInfo {
@@ -134,11 +136,19 @@ function fmt(ms: number, now: number): string {
 // Explain a resource in plain words: the state, what access it implies, the
 // expiry of each item, the acknowledgement state and deadline, the linked
 // token, the test marker, the plan type and the cancellation context.
+// A token that came from Google is real. Show enough to tell two of them
+// apart and never enough to call the API with, because `state` and the MCP
+// tool both print this and an assistant transcript is not a safe place for a
+// bearer credential.
+function maskToken(token: string): string {
+  return token.length <= 10 ? '[token]' : `${token.slice(0, 4)}...${token.slice(-4)} (masked)`;
+}
+
 export function explainSubscription(resource: SubscriptionResource, options: ExplainOptions = {}): Explanation {
   const now = (options.now ?? new Date()).getTime();
   const lines: string[] = [];
   const stateName = resource.subscriptionState ?? 'SUBSCRIPTION_STATE_UNSPECIFIED';
-  const info = SUBSCRIPTION_STATE_INFO[stateName] ?? {
+  const info = own(SUBSCRIPTION_STATE_INFO, stateName) ?? {
     name: stateName,
     access: 'no' as Access,
     words: 'not a state in the reference read on 2026-09-09; treat as no access and fetch again',
@@ -211,7 +221,7 @@ export function explainSubscription(resource: SubscriptionResource, options: Exp
   }
 
   const ack = resource.acknowledgementState ?? 'ACKNOWLEDGEMENT_STATE_UNSPECIFIED';
-  const ackWords = ACKNOWLEDGEMENT_STATE_WORDS[ack] ?? ack;
+  const ackWords = own(ACKNOWLEDGEMENT_STATE_WORDS, ack) ?? ack;
   if (ack === 'ACKNOWLEDGEMENT_STATE_PENDING') {
     const prepaid = items.some((item) => item.prepaidPlan);
     const start = resource.startTime ? Date.parse(resource.startTime) : NaN;
@@ -235,7 +245,7 @@ export function explainSubscription(resource: SubscriptionResource, options: Exp
 
   if (resource.linkedPurchaseToken) {
     lines.push(
-      `Linked purchase token: ${resource.linkedPurchaseToken}. This purchase replaced it (upgrade, downgrade or re-signup before expiry). Invalidate the old token's access so it cannot be used twice.`,
+      `Linked purchase token: ${maskToken(resource.linkedPurchaseToken)}. This purchase replaced it (upgrade, downgrade or re-signup before expiry). Invalidate the old token's access so it cannot be used twice.`,
     );
   }
 
@@ -245,7 +255,7 @@ export function explainSubscription(resource: SubscriptionResource, options: Exp
 
   if (resource.canceledStateContext) {
     const keys = Object.keys(resource.canceledStateContext);
-    const words = keys.map((k) => CANCELLATION_WORDS[k] ?? k).join('; ');
+    const words = keys.map((k) => own(CANCELLATION_WORDS, k) ?? k).join('; ');
     lines.push(`Cancellation: ${words || 'context present without a known reason'}.`);
   }
 

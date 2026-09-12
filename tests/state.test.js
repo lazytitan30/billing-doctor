@@ -62,10 +62,23 @@ test('on hold and paused mean no access; paused says when it resumes', () => {
   assert.ok(paused.lines.some((l) => /resumes automatically at 2026-11-01T10:00:00Z/.test(l)));
 });
 
-test('a linked purchase token says to invalidate the old one', () => {
+test('a linked purchase token says to invalidate the old one, without printing it', () => {
   const e = explainSubscription(fixture('upgraded-linked-token.json'), { now });
-  const line = e.lines.find((l) => l.startsWith('Linked purchase token: tok_a1'));
+  const line = e.lines.find((l) => l.startsWith('Linked purchase token:'));
   assert.match(line, /Invalidate the old token/);
+  // The resource comes from Google, so this token is real. `state` and the MCP
+  // tool both print this line, and an assistant transcript is not a safe place
+  // for a bearer credential.
+  assert.doesNotMatch(line, /tok_a1/, 'the token itself must not be printed');
+});
+
+test('a long linked token is masked at both ends rather than printed', () => {
+  const real = 'kjhgfdsa.AO-J1OyExampleRealLookingTokenValue0123456789abcdefghij';
+  const resource = { ...fixture('upgraded-linked-token.json'), linkedPurchaseToken: real };
+  const e = explainSubscription(resource, { now });
+  const line = e.lines.find((l) => l.startsWith('Linked purchase token:'));
+  assert.doesNotMatch(line, new RegExp(real.slice(8, 40)), 'the middle must not survive');
+  assert.match(line, /masked/);
 });
 
 test('a prepaid plan under a week has half the plan length to acknowledge', () => {

@@ -189,8 +189,16 @@ export function productOf(tl: NormalizedTimeline, token: string): string | undef
   return undefined;
 }
 
+// A table lookup that cannot return something the table does not own.
+// `TABLE[key] ?? fallback` looks safe and is not: for key "constructor" or
+// "toString" it returns an inherited function, which is not nullish, so the
+// fallback never runs. Keys here come from timelines, which come from logs.
+export function own<T>(table: Record<string | number, T>, key: string | number | undefined): T | undefined {
+  return key !== undefined && Object.hasOwn(table, key) ? table[key] : undefined;
+}
+
 export function productTypeOf(tl: NormalizedTimeline, productId: string | undefined): string | undefined {
-  return productId ? tl.app.products?.[productId] : undefined;
+  return own(tl.app.products ?? {}, productId);
 }
 
 // A timeline that carries nothing from the server cannot show whether a

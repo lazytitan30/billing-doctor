@@ -3,6 +3,8 @@
 // reference (src/google/docs.ts carries the URL). The decoder never trusts the
 // body beyond parsing it; what the caller must do next is always "re-fetch".
 
+import { own } from '../engine/helpers.js';
+
 export interface NotificationTypeInfo {
   value: number;
   name: string;
@@ -201,8 +203,8 @@ export function decodeRtdn(input: unknown): DecodedRtdn {
   }
   if (notification.voidedPurchaseNotification) {
     const n = notification.voidedPurchaseNotification;
-    const refundType = n.refundType === undefined ? undefined : { value: n.refundType, name: REFUND_TYPES[n.refundType] ?? 'UNKNOWN' };
-    const productType = n.productType === undefined ? undefined : { value: n.productType, name: PRODUCT_TYPES[n.productType] ?? 'UNKNOWN' };
+    const refundType = n.refundType === undefined ? undefined : { value: n.refundType, name: own(REFUND_TYPES, n.refundType) ?? 'UNKNOWN' };
+    const productType = n.productType === undefined ? undefined : { value: n.productType, name: own(PRODUCT_TYPES, n.productType) ?? 'UNKNOWN' };
     const next =
       n.refundType === 2
         ? 'a quantity-based partial refund on a multi-quantity one-time product: adjust the quantity (productsv2.get carries refundableQuantity); do not revoke the whole purchase.'
@@ -220,7 +222,7 @@ export function decodeRtdn(input: unknown): DecodedRtdn {
   if (notification.pendingRefundReviewNotification) {
     const n = notification.pendingRefundReviewNotification;
     const refundReason =
-      n.refundReason === undefined ? undefined : { value: n.refundReason, name: REFUND_REASONS[n.refundReason] ?? 'UNKNOWN' };
+      n.refundReason === undefined ? undefined : { value: n.refundReason, name: own(REFUND_REASONS, n.refundReason) ?? 'UNKNOWN' };
     return {
       ...base,
       notification: 'pendingRefundReview',

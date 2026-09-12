@@ -12,6 +12,12 @@ export const E2 = defineRule({
     'A type 7 notification with no ledger write on its token afterwards, while a fetch shows the token active again or the ledger wrote a row for the same user under a token no purchase produced. A restore from the Play subscriptions centre keeps the same token.',
   run(tl) {
     const hits = [];
+    // Every token that any purchase_result mentions, worked out once. This used
+    // to be an inner `tl.events.some(...)` inside a `find` inside a loop, which
+    // made the rule cubic: 4,800 events took 23 seconds, and over the MCP
+    // server that blocks every other call for as long as it runs.
+    const purchasedTokens = new Set<string>();
+    for (const e of tl.events) if (isPurchaseResult(e) && typeof e.token === 'string') purchasedTokens.add(e.token);
     for (const [token, events] of tl.byToken) {
       for (const rtdn of events.filter((e) => isSubscriptionNotification(e, 7))) {
         if (events.some((e) => isLedger(e) && precedes(rtdn, e))) continue;
@@ -24,7 +30,7 @@ export const E2 = defineRule({
             e.token !== token &&
             e.userId !== undefined &&
             e.userId === user &&
-            !tl.events.some((p) => isPurchaseResult(p) && p.token === e.token),
+            !purchasedTokens.has(e.token),
         );
         const read = events.find((e) => isOkGet(e) && precedes(rtdn, e));
         if (!stray && !read) continue;

@@ -1,7 +1,11 @@
 import { defineRule } from '../rule.js';
 import { looksLikePseudonym } from '../timeline.js';
 
-const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+// Bounded on purpose. The unbounded form took quadratic time to fail on a
+// long run of dotted labels, so a 125 kB timeline froze the process for six
+// seconds and a megabyte would have taken minutes. Over the MCP server that is
+// one tool call that blocks every other one. Real addresses fit comfortably.
+const EMAIL_RE = /[A-Za-z0-9._%+-]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,8}[A-Za-z]{2,24}/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Real tokens, emails and user ids inside a timeline are real data about a

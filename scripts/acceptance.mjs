@@ -93,11 +93,28 @@ try {
   check('rtdn decodes a Pub/Sub push body', rtdn.code === 0 && /SUBSCRIPTION_PURCHASED/.test(rtdn.out));
 
   // Redaction is the promise that makes it safe to share a timeline at all.
-  const secret = 'auth ya29.a0AfH6SMBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx mail dev@example.com order GPA.1234-5678-9012-34567';
+  // A purchase token belongs in this sample above everything else. It is the
+  // bearer credential the tool exists to keep out of shared files, and until
+  // 2026-09-12 this check tested an OAuth token, an email and an order id, and
+  // no purchase token at all. redact walked straight past the project's own
+  // fixture while reporting "redacted 0 tokens".
+  const purchaseToken = 'kjhgfdsa.AO-J1OyExampleRealLookingTokenValue0123456789abcdefghijkl';
+  const secret = [
+    `token ${purchaseToken}`,
+    'auth ya29.a0AfH6SMBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'mail dev@example.com',
+    'order GPA.1234-5678-9012-34567',
+    'authorization: bearer abcdefghijklmnopqrstuvwxyz012345',
+    'account 550e8400e29b41d4a716446655440000',
+  ].join(' ');
   const redact = run(sandbox, bin, ['redact'], secret);
-  check('redact removes an OAuth token', redact.code === 0 && !redact.out.includes('ya29.a0AfH6SMB'));
+  check('redact removes a purchase token', redact.code === 0 && !redact.out.includes(purchaseToken));
+  check('redact counts the token it removed', /[1-9]\d* token/.test(redact.out));
+  check('redact removes an OAuth token', !redact.out.includes('ya29.a0AfH6SMB'));
   check('redact removes an email', !redact.out.includes('dev@example.com'));
   check('redact masks an order id', !redact.out.includes('GPA.1234-5678-9012-34567'));
+  check('redact removes a lowercase bearer token', !redact.out.includes('abcdefghijklmnopqrstuvwxyz012345'));
+  check('redact removes a bare 32-hex account id', !redact.out.includes('550e8400e29b41d4a716446655440000'));
 
   const init = cli('init', '--yes');
   check('init writes a starting timeline', init.code === 0 && /timeline\.json/.test(init.out));

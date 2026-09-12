@@ -67,3 +67,55 @@ test('the redact command reads stdin, prints clean text, and counts on stderr', 
   assert.equal(quiet.stderr, '');
   assert.equal(quiet.stdout, 'nothing here');
 });
+
+// Every one of these was live on 2026-09-12 and was found by an adversarial
+// review, not by this file. The pattern in each case was the same: the
+// expression was written for the shape somebody had in front of them, and real
+// data comes in more shapes than that.
+test('a purchase token is redacted whatever its prefix length', () => {
+  // The original pattern demanded twelve or more lowercase characters before
+  // the dot, so it walked past the project's own J3 fixture and reported
+  // "redacted 0 tokens" over nine live-shaped tokens.
+  for (const prefix of ['kjhgfdsa', 'ab', 'kfjhsdkjfhs', 'ahdgfkjsdhfg', 'MiXeDcAsE9']) {
+    const token = `${prefix}.AO-J1OyExampleTokenValue0123456789abcdefghijklmnop`;
+    const r = redact(`purchaseToken=${token}`);
+    assert.ok(!r.text.includes(token), `prefix ${prefix} survived`);
+    assert.ok(r.counts.tokens > 0, `prefix ${prefix} was not counted`);
+  }
+});
+
+test('credentials are redacted however the log cased them', () => {
+  for (const line of [
+    'authorization: bearer 1a2b3c4d5e6f7g8h9i0jKLMNOP',
+    'AUTHORIZATION: BEARER 1a2b3c4d5e6f7g8h9i0jKLMNOP',
+    'orderId=gpa.1234-5678-9012-34567',
+  ]) {
+    assert.notEqual(redact(line).text, line, `unchanged: ${line}`);
+  }
+});
+
+test('an account id without dashes is still an account id', () => {
+  const line = 'obfuscatedExternalAccountId=550e8400e29b41d4a716446655440000';
+  assert.notEqual(redact(line).text, line);
+});
+
+test('a private key truncated by the log is still a private key', () => {
+  // The pattern needed both the BEGIN and END markers, so a key cut off
+  // mid-file survived in full.
+  const cut = '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC';
+  assert.notEqual(redact(cut).text, cut);
+  const pgp = '-----BEGIN PGP PRIVATE KEY BLOCK-----\nlQOYBF8example';
+  assert.notEqual(redact(pgp).text, pgp);});
+
+test('control characters are stripped, tabs and newlines are not', () => {
+  // This command exists to make a log safe to paste. An ANSI escape can clear
+  // the screen, rewrite the window title, and draw over the evidence lines a
+  // finding rests on.
+  const esc = String.fromCharCode(27);
+  const bel = String.fromCharCode(7);
+  const evil = `ok ${esc}[31m${esc}]0;PWNED${bel} bye`;
+  const out = redact(evil).text;
+  assert.doesNotMatch(out, new RegExp(esc), 'an escape survived');
+  assert.doesNotMatch(out, new RegExp(bel), 'a bell survived');
+  assert.equal(redact('a\tb\nc').text, 'a\tb\nc', 'tabs and newlines must survive');
+});

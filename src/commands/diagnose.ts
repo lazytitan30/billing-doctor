@@ -25,7 +25,12 @@ The one optional network feature, off by default:
   --service-account <file>    your own service-account key (needs "View financial data"); nothing goes anywhere but Google
   --token-map <file>          JSON { "tok_a1": "<real token>" }; pseudonyms without an entry are skipped
   --package <name>            the package name (default: app.packageName in the timeline)
-  --out <file>                write the augmented timeline here; the real tokens never enter it`;
+  --out <file>                write the augmented timeline here; the real tokens never enter it
+  --api-base <url>            send the API calls somewhere other than Google, for testing against a stub
+  --token-url <url>           exchange the key somewhere other than Google, for testing against a stub
+
+Both overrides, and a token_uri inside the key file, move where your credentials
+go. Any of them prints a warning naming the host, every time.`;
 
 export async function runDiagnose(argv: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
@@ -81,6 +86,8 @@ export async function runDiagnose(argv: string[]): Promise<number> {
         tokenMap,
         packageName: values.package,
         apiBase: values['api-base'],
+        warn: (m: string) => process.stderr.write(`warning: ${m}
+`),
         tokenUrl: values['token-url'],
       });
       timeline = augmented.timeline;

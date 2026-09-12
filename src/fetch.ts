@@ -15,11 +15,23 @@ import { createSign } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import type { Timeline } from './engine/timeline.js';
 import { looksLikePseudonym } from './engine/timeline.js';
-import { pseudonymForToken } from './redact.js';
+import { pseudonymForToken, findTokens } from './redact.js';
 
 export const SCOPE = 'https://www.googleapis.com/auth/androidpublisher';
 export const DEFAULT_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 export const DEFAULT_API_BASE = 'https://androidpublisher.googleapis.com';
+
+// Where a Google credential is allowed to go without comment. Anything else is
+// still permitted, because testing against a local stub is legitimate and this
+// tool does not get to decide who you talk to, but it is never silent.
+const GOOGLE_HOSTS = /(^|\.)(googleapis\.com|google\.com)$/;
+export function isGoogleEndpoint(url: string): boolean {
+  try {
+    return GOOGLE_HOSTS.test(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
 
 export interface ServiceAccount {
   client_email: string;
@@ -86,6 +98,14 @@ export async function fetchSubscription(
   purchaseToken: string,
   options: { fetch: FetchLike; apiBase: string },
 ): Promise<FetchedSubscription> {
+  // Validate the base on its own, so a malformed one fails without the real
+  // purchase token in the message. It used to appear in full in the thrown
+  // "Failed to parse URL from ..." and go straight to stderr.
+  try {
+    void new URL(options.apiBase);
+  } catch {
+    throw new Error(`the API base is not a URL: ${options.apiBase}`);
+  }
   const url = `${options.apiBase}/androidpublisher/v3/applications/${encodeURIComponent(packageName)}/purchases/subscriptionsv2/tokens/${encodeURIComponent(purchaseToken)}`;
   const response = await options.fetch(url, { headers: { authorization: `Bearer ${accessToken}` } });
   if (response.status !== 200) return { status: response.status };
@@ -132,6 +152,8 @@ export interface FetchOptions {
   fetch?: FetchLike;
   apiBase?: string;
   tokenUrl?: string;
+  // Where to say something the reader must see. The command passes stderr.
+  warn?: (message: string) => void;
 }
 
 export interface FetchResult {
@@ -145,6 +167,17 @@ export async function fetchForTimeline(timeline: Timeline, options: FetchOptions
   const fetchImpl = options.fetch ?? (globalThis.fetch as unknown as FetchLike);
   const tokenUrl = options.tokenUrl ?? account.token_uri ?? DEFAULT_TOKEN_URL;
   const apiBase = options.apiBase ?? DEFAULT_API_BASE;
+  // Say where the credential is going whenever that is not Google. A signed
+  // assertion carries the service-account identity, and the access token it
+  // buys can read financial data, so a redirect the reader did not intend is
+  // worth a line on stderr every single time.
+  const offGoogle = [
+    ...(isGoogleEndpoint(tokenUrl) ? [] : [`token exchange -> ${tokenUrl}`]),
+    ...(isGoogleEndpoint(apiBase) ? [] : [`API calls -> ${apiBase}`]),
+  ];
+  if (offGoogle.length) {
+    options.warn?.(`sending credentials to a host that is not Google: ${offGoogle.join('; ')}`);
+  }
   const packageName = options.packageName ?? timeline.app?.packageName;
   if (!packageName) throw new Error('no package name: set app.packageName in the timeline or pass --package');
   const now = options.now ?? new Date();
@@ -160,7 +193,7 @@ export async function fetchForTimeline(timeline: Timeline, options: FetchOptions
   let accessToken: string | undefined;
 
   for (const token of tokens) {
-    const real = map[token] ?? (looksLikePseudonym(token) ? undefined : token);
+    const real = (Object.hasOwn(map, token) ? map[token] : undefined) ?? (looksLikePseudonym(token) ? undefined : token);
     if (!real) {
       skipped.push(token);
       continue;
@@ -173,10 +206,29 @@ export async function fetchForTimeline(timeline: Timeline, options: FetchOptions
   }
 
   // Tokens that were real in the input are pseudonymised in the output too.
-  const rewritten = timeline.events.map((e) => {
-    if (typeof e.token === 'string' && !looksLikePseudonym(e.token)) return { ...e, token: pseudonymFor(e.token) };
-    return e;
-  });
+  //
+  // By scanning the serialised event rather than by naming fields. The schema
+  // is a looseObject, so an event can carry anything, and naming fields missed
+  // oldToken, linkedPurchaseToken, expiredPurchaseToken and every free-text
+  // field: an idempotencyKey built from a token, a note quoting one. The help
+  // text promises the real tokens never enter this file, so the only safe rule
+  // is to replace every real token everywhere it appears.
+  const serialised = JSON.stringify(timeline.events);
+  const realTokens = [...new Set([
+    ...Object.values(map).filter((t): t is string => typeof t === 'string' && t.length > 0),
+    ...timeline.events.map((e) => e.token).filter((t): t is string => typeof t === 'string' && !looksLikePseudonym(t)),
+    // And anything token-shaped anywhere in any event, wherever it sits:
+    // oldToken, linkedPurchaseToken, an expired token nested in the
+    // out-of-app context, or one quoted inside a note.
+    ...findTokens(serialised).filter((t) => !looksLikePseudonym(t)),
+  ])].sort((a, b) => b.length - a.length); // longest first, so a token that contains another is replaced whole
+
+  const scrub = (event: unknown): unknown => {
+    let text = JSON.stringify(event);
+    for (const real of realTokens) text = text.split(real).join(pseudonymFor(real));
+    return JSON.parse(text) as unknown;
+  };
+  const rewritten = realTokens.length ? (timeline.events.map(scrub) as typeof timeline.events) : timeline.events;
   const augmented = { ...timeline, events: [...rewritten, ...events] } as Timeline;
   return { timeline: augmented, fetched, skipped };
 }
