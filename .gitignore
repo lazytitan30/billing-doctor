@@ -4,6 +4,13 @@ dist/
 .env
 service-account*.json
 *-service-account*.json
+# A service-account key is a password in a file, and a token map holds the real
+# purchase tokens the whole tool exists to keep out of files. Neither is ever
+# committed, whatever they happen to be called.
+/key.json
+/credentials.json
+/tokens.json
+/token-map.json
 billing-doctor-kit/
 .DS_Store
 Thumbs.db
