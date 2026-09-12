@@ -11,13 +11,19 @@
 #   Repeatability. A laptop publish depends on what happens to be in that
 #   folder. This starts from a clean checkout every time.
 #
-# What it needs once, from the founder:
+# Authentication, in order of preference:
 #
-#   1. On npmjs.com, Access Tokens, create a Granular Access Token scoped to
-#      the single package `billing-doctor` with read and write. Not a classic
-#      token: a granular one can be limited to one package and expires.
-#   2. In this repository, Settings, Secrets and variables, Actions, add it as
-#      NPM_TOKEN.
+#   1. Trusted publishing, which needs no credential at all. npm hands this
+#      workflow a short-lived token over OIDC, tied to this repository and this
+#      file, that cannot be extracted or replayed. Configure it once at
+#      npmjs.com, Packages, billing-doctor, Settings, Trusted publishing, with
+#      the owner, the repository, and this filename. It can only be set up
+#      after the package exists, so the first release is published by hand.
+#
+#   2. An NPM_TOKEN secret, if trusted publishing is not set up. Works, but it
+#      is a long-lived credential sitting in GitHub, and npm is restricting
+#      tokens that bypass two-factor authentication for direct publishing.
+#      Prefer option 1 and delete the secret once it is in place.
 #
 # To release: bump the version, update CHANGELOG.md with a date, commit, then
 #
@@ -73,6 +79,9 @@ jobs:
           fi
           echo "both say $PKG"
 
+      # No `if` on the token: when trusted publishing is configured npm ignores
+      # an empty NODE_AUTH_TOKEN and uses OIDC, and when it is not, the secret
+      # is used. Either way the same command publishes with provenance.
       - name: Publish with provenance
         run: npm publish --provenance --access public
         env:
