@@ -36,15 +36,24 @@ function check(label, ok, detail = '') {
 // Both streams, whether the command succeeded or not. A warning printed to
 // stderr on a successful run is still something a user sees, so a check that
 // reads only stdout would miss it.
+// npm hands its own flags to every child process as npm_config_* variables.
+// Under `npm publish --dry-run` that includes npm_config_dry_run=true, which
+// makes the `npm pack` and `npm install` below do nothing, exit 0, and leave
+// this script reporting on a package that was never installed. Found on
+// 2026-09-12 when the rehearsal crashed reading a README that had not been
+// written. Strip it, so a rehearsal runs the same steps the real publish will.
+const env = { ...process.env };
+delete env.npm_config_dry_run;
+
 function run(cwd, cmd, args, input) {
-  const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', input, shell: win });
+  const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', input, shell: win, env });
   return { code: r.status ?? 1, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
 }
 
 const sandbox = mkdtempSync(join(tmpdir(), 'billing-doctor-acceptance-'));
 try {
   // 1. Build the artifact that would be published, and install only that.
-  const packed = execFileSync('npm', ['pack', '--pack-destination', sandbox, '--json'], { cwd: root, encoding: 'utf8', shell: win });
+  const packed = execFileSync('npm', ['pack', '--pack-destination', sandbox, '--json'], { cwd: root, encoding: 'utf8', shell: win, env });
   const tarball = join(sandbox, JSON.parse(packed)[0].filename);
   writeFileSync(join(sandbox, 'package.json'), JSON.stringify({ name: 'acceptance', private: true }));
   const install = run(sandbox, 'npm', ['install', '--no-audit', '--no-fund', tarball]);

@@ -6,6 +6,7 @@
     "moduleResolution": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
+    "newLine": "lf",
     "declaration": true,
     "strict": true,
     "esModuleInterop": true,

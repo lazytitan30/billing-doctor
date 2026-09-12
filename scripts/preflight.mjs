@@ -118,6 +118,25 @@ check('tarball carries the compiled entry point', files.includes('dist/cli.js') 
 check('tarball carries the licence', files.includes('LICENSE'));
 check('tarball size is sane', packed[0].size < 5_000_000, `${Math.round(packed[0].size / 1000)} kB, ${files.length} files`);
 
+// ---- 7b. The bin must run on macOS and Linux when built on Windows --------
+// The kernel hands `#!/usr/bin/env node\r` to env as a program called "node\r"
+// and every npx on a Mac dies with "No such file or directory". CI cannot see
+// this: it compiles on Linux. tsc writes LF here only because tsconfig says
+// newLine=lf; this is what notices if that ever changes.
+
+const cliBytes = readFileSync(join(root, 'dist/cli.js'));
+const shebang = cliBytes.subarray(0, Math.max(0, cliBytes.indexOf(10))).toString();
+check('bin starts with a LF-terminated node shebang', shebang === '#!/usr/bin/env node', JSON.stringify(shebang));
+const crFiles = [];
+(function walk(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else if (readFileSync(full).includes(13)) crFiles.push(full.slice(root.length));
+  }
+})(join(root, 'dist'));
+check('no CR bytes anywhere in the compiled output', crFiles.length === 0, crFiles.slice(0, 3).join(', '));
+
 // ---- 8. The MCP ownership marker the registry checks ---------------------
 // If this is missing, the registry refuses the server and the only fix is to
 // publish another version.
