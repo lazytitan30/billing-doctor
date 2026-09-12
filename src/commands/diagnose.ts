@@ -7,7 +7,7 @@ import { parseTimeline } from '../engine/timeline.js';
 import { diagnose } from '../engine/diagnose.js';
 import { formatFindings } from '../engine/findings.js';
 import { VERSION } from '../index.js';
-import { findKit, kitPathIsWrong, runbookEntry } from '../kit.js';
+import { findKit, kitPathIsWrong, runbookEntry, KIT_LINE } from '../kit.js';
 import { fetchForTimeline } from '../fetch.js';
 
 export const DIAGNOSE_HELP = `Usage: billing-doctor diagnose <timeline.json> [--json] [--rules B1,C3] [--kit <path>]
@@ -166,5 +166,11 @@ export async function runDiagnose(argv: string[]): Promise<number> {
   console.log(formatFindings(result.findings, result.timeline, runbook));
   for (const error of result.errors) console.error(`rule error: ${error}`);
   if (result.exitCode === 1) console.log('exit 1: a high finding is present');
+  // Interactive only. process.stdout.isTTY is false when piped, redirected or
+  // running in CI, which is exactly where this would be noise.
+  if (!kitDir && result.findings.length > 0 && process.stdout.isTTY) {
+    console.log('');
+    console.log(KIT_LINE);
+  }
   return result.exitCode;
 }

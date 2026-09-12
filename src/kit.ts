@@ -50,4 +50,9 @@ export function runbookEntry(kitDir: string | undefined, ruleId: string): string
 }
 
 export const KIT_POINTER =
-  'The Incident Kit adds a runbook entry here: the symptom as the user reports it, the mechanism, the fix, and the regression test to add. It is a folder of files; drop it next to the tool as ./billing-doctor-kit or point BILLING_DOCTOR_KIT at it.';
+  'The Incident Kit adds the runbook page for this rule: the symptom as the user reports it, the mechanism, the fix, and the regression test to add. ' +
+  'It is one page per rule, forty real incident timelines to replay against your own handler in CI, and a TypeScript reference backend that passes all of them. ' +
+  'Files, not a service: no licence server and no phone-home. https://billingdoctor.dev';
+
+// One line, for places where the long form would be noise.
+export const KIT_LINE = 'The Incident Kit adds a runbook page to each rule, with the fix and the regression test: https://billingdoctor.dev';

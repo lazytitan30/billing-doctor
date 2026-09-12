@@ -106,6 +106,19 @@ Configure it as command `npx`, args `["-y", "billing-doctor", "mcp"]`. For Claud
 
 The free tool is complete on its own. The paid **Incident Kit** is a folder of files that makes the fix faster: a runbook entry per rule (the symptom as the user reports it, the mechanism, the fix, the regression test to add), a set of realistic incident timelines to replay against your own handler in CI, a TypeScript reference implementation of a verify endpoint, an RTDN handler and a reconciliation job, and checklists for the Play Console, Cloud setup, license testing and the Billing Library 8 and 9 migration. Drop the folder next to the tool as `./billing-doctor-kit` (or set `BILLING_DOCTOR_KIT`) and `billing-doctor rule G2` prints the runbook. There is no licence server and no phone-home; the kit is files.
 
+**[billingdoctor.dev](https://billingdoctor.dev)** — one runbook page per rule, forty incident timelines, the reference backend, and the checklists.
+
+What is in it, concretely:
+
+| | |
+|---|---|
+| Runbook | one page per rule: the symptom as a user reports it, the mechanism, Google's rule quoted with the date it was read, the fix, and the regression test to add |
+| Incidents | forty timelines drawn from real failures, each with the findings it produces, plus five correct lifecycles that must stay silent. Replay them against your own handler in CI |
+| Reference backend | TypeScript: a verify endpoint with a fail-closed ledger, an RTDN handler with message-id idempotency, an acknowledgement watchdog, a voided-purchases sweep, a reconciliation job, HMAC account binding, a retention purge and a Postgres schema. It passes all forty-five timelines |
+| Checklists | Play Console and Cloud setup, license testing, managed publishing, Data Safety, and the Billing Library 8 and 9 migration |
+
+Updates for twelve months, as a new download when Google's rules change or a rule is added.
+
 ## The one optional network feature
 
 `diagnose --fetch` reads `purchases.subscriptionsv2.get` for every token in a timeline with your own service-account key and appends Google's answers as `api` events, so a timeline built from logs gets Google's current view of each purchase. Off by default; nothing goes anywhere but Google.

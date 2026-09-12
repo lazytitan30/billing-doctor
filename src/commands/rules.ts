@@ -4,7 +4,7 @@
 import { parseArgs } from 'node:util';
 import { RULES, GROUPS, ruleById } from '../engine/catalogue.js';
 import { googleRule } from '../google/docs.js';
-import { findKit, kitPathIsWrong, runbookEntry, KIT_POINTER } from '../kit.js';
+import { findKit, kitPathIsWrong, runbookEntry, KIT_LINE, KIT_POINTER } from '../kit.js';
 import type { Rule } from '../engine/rule.js';
 
 export const RULES_HELP = `Usage: billing-doctor rules [--json]
@@ -16,7 +16,7 @@ export const RULE_HELP = `Usage: billing-doctor rule <id> [--kit <path>] [--json
 Prints one rule: what it detects, Google's rule with the link and the date it
 was read, and the runbook entry when the Incident Kit folder is present.`;
 
-export function formatRuleList(rules: Rule[]): string {
+export function formatRuleList(rules: Rule[], kitDir?: string): string {
   const lines: string[] = [];
   for (const [group, name] of Object.entries(GROUPS)) {
     const inGroup = rules.filter((r) => r.group === group);
@@ -26,6 +26,8 @@ export function formatRuleList(rules: Rule[]): string {
     lines.push('');
   }
   lines.push(`${rules.length} rules. billing-doctor rule <id> prints one in full.`);
+  // Only when they do not already have it.
+  if (!kitDir) lines.push(KIT_LINE);
   return lines.join('\n');
 }
 
@@ -67,7 +69,7 @@ export function runRules(argv: string[]): number {
     );
     return 0;
   }
-  console.log(formatRuleList(RULES));
+  console.log(formatRuleList(RULES, findKit()));
   return 0;
 }
 

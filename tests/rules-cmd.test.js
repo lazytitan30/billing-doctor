@@ -31,7 +31,10 @@ test('rule B1 prints the quote, the link, the date, and the kit pointer without 
   assert.match(r.stdout, /must be done within three days/);
   assert.match(r.stdout, /read 2026-09-09/);
   assert.match(r.stdout, /https:\/\/developer\.android\.com\/google\/play\/billing\/integrate/);
-  assert.match(r.stdout, /The Incident Kit adds a runbook entry here/);
+  assert.match(r.stdout, /The Incident Kit adds the runbook page for this rule/);
+  // The pointer existed for months without saying where to get the kit, so
+  // anyone who wanted one had nowhere to go. Assert the way out is there.
+  assert.match(r.stdout, /billingdoctor\.dev/);
 });
 
 test('rule G2 prints the observed behaviour apart from the quote', () => {
