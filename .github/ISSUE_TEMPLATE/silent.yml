@@ -1,0 +1,52 @@
+name: The tool found nothing
+description: You had a real problem and billing-doctor said nothing useful
+title: "[silent] "
+labels: ["silent"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most valuable issue you can open. Every gap we know about was
+        found by somebody reporting one.
+
+        **Before you paste anything: run it through `redact` first.**
+
+        ```bash
+        billing-doctor redact < your-log.txt > safe.txt
+        ```
+
+        A purchase token is a bearer credential. Anyone who reads it can query
+        your purchase. Order ids, emails and account ids matter too. `redact`
+        turns all of them into stable pseudonyms, so the timeline still makes
+        sense and nothing real leaves your machine.
+  - type: checkboxes
+    id: redacted
+    attributes:
+      label: Redaction
+      options:
+        - label: I ran `redact` over everything I am pasting below
+          required: true
+  - type: textarea
+    id: broke
+    attributes:
+      label: What actually broke
+      description: In your own words, the way you would tell a colleague.
+      placeholder: A user paid, the money left their account, and the app never gave them anything.
+    validations:
+      required: true
+  - type: textarea
+    id: cause
+    attributes:
+      label: What turned out to be the cause, if you found it
+      description: If you never found out, say so. That is still useful.
+  - type: textarea
+    id: timeline
+    attributes:
+      label: The redacted timeline
+      description: The JSON you ran it on. Or a description of the sequence, if you never built one.
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The output of `billing-doctor --version`

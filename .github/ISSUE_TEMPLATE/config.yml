@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/lazytitan30/billing-doctor/security/policy
+    about: A leaked token, key or user data. Report privately, never in an issue.

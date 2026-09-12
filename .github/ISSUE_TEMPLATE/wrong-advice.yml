@@ -1,0 +1,30 @@
+name: A rule said something untrue
+description: A finding fired correctly but its explanation or its next check is wrong
+title: "[wrong] "
+labels: ["wrong-advice"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every rule quotes a sentence Google published, with the date it was read.
+        If the quote no longer matches the page, or the advice built on it is
+        wrong, that is worth more than a code bug: the tool is confidently
+        misleading people.
+  - type: input
+    id: rule
+    attributes:
+      label: Which rule
+      placeholder: K5
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What it says, and why that is wrong
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Link to the Google documentation that shows it
+      placeholder: https://developer.android.com/google/play/billing/...
