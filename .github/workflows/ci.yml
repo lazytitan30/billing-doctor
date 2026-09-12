@@ -20,8 +20,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node: [20, 22]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Pinned to a commit, not a tag: a tag can be moved, a hash cannot.
+      # Dependabot keeps these current, which is why pinning costs nothing now.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -34,3 +36,7 @@ jobs:
       # Last, and on every platform: install the packed tarball into an empty
       # directory and use it the way a stranger does.
       - run: node scripts/acceptance.mjs
+      # Random input at every parser. This tool is pointed at logs, and logs are
+      # truncated, double-encoded and occasionally corrupted. A different seed
+      # each run, so the corpus keeps widening rather than repeating.
+      - run: node scripts/fuzz.mjs ${{ github.run_number }} 1500

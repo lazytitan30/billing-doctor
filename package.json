@@ -59,6 +59,7 @@
     "test": "npm run build && node --test --test-concurrency=1",
     "preflight": "npm run build && node scripts/preflight.mjs",
     "acceptance": "node scripts/acceptance.mjs",
+    "fuzz": "npm run build && node scripts/fuzz.mjs",
     "prepublishOnly": "npm run preflight && npm run acceptance",
     "prepack": "npm run build"
   },
