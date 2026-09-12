@@ -1,0 +1,79 @@
+# Publish to npm, from here rather than from somebody's laptop.
+#
+# Why this exists rather than `npm publish` on a desktop:
+#
+#   Provenance. npm records a signed, publicly logged statement linking the
+#   published package to the commit and the workflow that built it. Anyone can
+#   then check that what they installed came from this repository and not from
+#   whoever compromised a laptop. For a tool people point at their billing logs
+#   that is worth the setup.
+#
+#   Repeatability. A laptop publish depends on what happens to be in that
+#   folder. This starts from a clean checkout every time.
+#
+# What it needs once, from the founder:
+#
+#   1. On npmjs.com, Access Tokens, create a Granular Access Token scoped to
+#      the single package `billing-doctor` with read and write. Not a classic
+#      token: a granular one can be limited to one package and expires.
+#   2. In this repository, Settings, Secrets and variables, Actions, add it as
+#      NPM_TOKEN.
+#
+# To release: bump the version, update CHANGELOG.md with a date, commit, then
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# Everything below has to pass before anything is published, and a publish
+# cannot be taken back.
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Required for provenance. It lets the job prove who it is to Sigstore
+  # without any long-lived credential.
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      # The whole gate, again, on the exact commit being published. CI having
+      # passed on main is not the same as it passing on this tag.
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm test
+      - run: node scripts/preflight.mjs
+      - run: node scripts/acceptance.mjs
+      - run: node scripts/fuzz.mjs ${{ github.run_number }} 2000
+
+      # The tag and package.json must agree. Publishing 0.1.0 from a tag that
+      # says v0.2.0 is the kind of thing nobody notices until much later.
+      - name: The tag matches the version in package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "tag v$TAG does not match package.json $PKG"
+            exit 1
+          fi
+          echo "both say $PKG"
+
+      - name: Publish with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
