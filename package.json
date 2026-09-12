@@ -42,6 +42,7 @@
     "fixtures",
     "skills",
     "docs",
+    "SECURITY.md",
     "server.json",
     "GEMINI.md",
     "gemini-extension.json",

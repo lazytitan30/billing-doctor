@@ -1,0 +1,14 @@
+# Category 7 of the risk register: a dependency that becomes vulnerable after
+# we shipped. npm audit in CI catches it on the next push; this opens the pull
+# request without waiting for one.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

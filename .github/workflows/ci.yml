@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
 
+# The workflow only reads. A token that could write is a token an injected
+# dependency could use.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
