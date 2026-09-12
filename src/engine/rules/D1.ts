@@ -17,9 +17,13 @@ export const D1 = defineRule({
     for (const [token, events] of tl.byToken) {
       // Replacements are F4's business: their expiry moves by proration.
       if (events.some((e) => isPurchaseResult(e) && e.replacementMode)) continue;
+      // Reverse once per token, not once per event. The copy inside the loop
+      // made this quadratic in both time and allocation: 32,000 events for one
+      // token took 4.9 seconds in this rule alone.
+      const reversed = [...events].reverse();
       for (const e of events) {
         if (!isLedger(e)) continue;
-        const lastGet = [...events].reverse().find((g): g is ApiEv => isOkGet(g) && precedes(g, e));
+        const lastGet = reversed.find((g): g is ApiEv => isOkGet(g) && precedes(g, e));
         if (e.expirySource && WRONG_SOURCES.has(e.expirySource)) {
           hits.push({
             evidence: lastGet ? [lastGet.i, e.i] : [e.i],

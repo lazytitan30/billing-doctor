@@ -13,7 +13,12 @@ export const C1 = defineRule({
     const writesById = new Map<string, number[]>();
     for (const e of tl.events) {
       if (!isLedgerWrite(e) || !e.messageId) continue;
-      writesById.set(e.messageId, [...(writesById.get(e.messageId) ?? []), e.i]);
+      // push, rather than copy the array each time. Rebuilding it was
+      // quadratic when many writes share one messageId, which is exactly what
+      // a redelivery storm looks like.
+      const seen = writesById.get(e.messageId);
+      if (seen) seen.push(e.i);
+      else writesById.set(e.messageId, [e.i]);
     }
     const hits = [];
     for (const [messageId, writes] of writesById) {

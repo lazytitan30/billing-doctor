@@ -50,11 +50,27 @@ export function createMcpServer(options: { kit?: string } = {}): McpServer {
       const parsed = parseInput(timeline);
       if (!parsed.ok) return failure(`not a valid timeline:\n${parsed.errors.join('\n')}`);
       const result = diagnose(parsed.timeline!, { rules });
+      // A ceiling on what goes back to the model. findings are already sorted
+      // worst first, so truncating keeps what matters and says that it did.
+      // Without this a large timeline returned nine times its own size and
+      // filled the caller's context with the same rule repeated.
+      const MAX_FINDINGS = 50;
+      const shown = result.findings.slice(0, MAX_FINDINGS);
+      const withRunbook = shown.map((f) => ({ ...f, runbook: runbookEntry(kitDir, f.ruleId) ?? null }));
       return text({
         summary: result.summary,
         exitCode: result.exitCode,
         warnings: parsed.warnings,
-        findings: result.findings.map((f) => ({ ...f, runbook: runbookEntry(kitDir, f.ruleId) ?? null })),
+        findings: withRunbook,
+        ...(result.findings.length > shown.length
+          ? {
+              truncated: {
+                shown: shown.length,
+                total: result.findings.length,
+                note: `Only the ${shown.length} most severe are listed. Run billing-doctor diagnose on the file for all ${result.findings.length}.`,
+              },
+            }
+          : {}),
         errors: result.errors,
       });
     },
@@ -158,7 +174,9 @@ export function createMcpServer(options: { kit?: string } = {}): McpServer {
         detects: rule.detects,
         googleRule: googleRule(rule.id),
         runbook: runbookEntry(kitDir, rule.id) ?? null,
-        kit: kitDir ?? null,
+        // Whether a kit is present, not where it lives. The path carries the
+        // user's username and the caller may be a remote model.
+        kit: kitDir ? 'present' : null,
       });
     },
   );

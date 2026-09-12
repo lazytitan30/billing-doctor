@@ -16,14 +16,31 @@ export interface StateRuleSpec {
   nextCheck: string;
 }
 
-// Is there another state read, or a state-changing notification, between a and b?
-function stateChangeBetween(events: Ev[], a: Ev, b: Ev): boolean {
-  return events.some(
-    (e) =>
-      precedes(a, e) &&
-      precedes(e, b) &&
-      ((isOkGet(e) && e.subscriptionState !== undefined) || (isRtdn(e) && e.notification !== 'test')),
-  );
+// The event indices that count as a state change: another read that carries a
+// state, or any notification other than a test one.
+function stateChangeIndices(events: Ev[]): number[] {
+  const out: number[] = [];
+  for (const e of events) {
+    if ((isOkGet(e) && e.subscriptionState !== undefined) || (isRtdn(e) && e.notification !== 'test')) out.push(e.i);
+  }
+  return out; // already ascending: byToken keeps events in order
+}
+
+// Is there a state change strictly between a and b? Answered by binary search
+// over the precomputed indices. It used to scan every event on every call,
+// from inside a find, inside a loop over reads, which made the whole family of
+// state rules quadratic: 32,000 events for one token took seconds.
+function hasChangeBetween(changes: number[], a: Ev, b: Ev): boolean {
+  const lo = Math.min(a.i, b.i);
+  const hi = Math.max(a.i, b.i);
+  let left = 0;
+  let right = changes.length;
+  while (left < right) {
+    const mid = (left + right) >> 1;
+    if (changes[mid] <= lo) left = mid + 1;
+    else right = mid;
+  }
+  return left < changes.length && changes[left] < hi;
 }
 
 export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleHit[] {
@@ -31,6 +48,8 @@ export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleH
   const stateName = spec.state.replace('SUBSCRIPTION_STATE_', '');
 
   for (const [token, events] of tl.byToken) {
+    const changes = stateChangeIndices(events);
+    const reversed = [...events].reverse();
     for (const read of events) {
       if (!isOkGet(read) || read.subscriptionState !== spec.state) continue;
       const expiry = expiryOf(read);
@@ -39,7 +58,7 @@ export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleH
         // Canceled keeps access only until expiry; a revoke after that is right.
         if (spec.state === 'SUBSCRIPTION_STATE_CANCELED' && expiry !== undefined && expiry <= read.tMs) continue;
         const revoke = events.find(
-          (e) => isRevoke(e) && precedes(read, e) && (expiry === undefined || e.tMs < expiry) && !stateChangeBetween(events, read, e),
+          (e) => isRevoke(e) && precedes(read, e) && (expiry === undefined || e.tMs < expiry) && !hasChangeBetween(changes, read, e),
         );
         if (!revoke) continue;
         // Another token replaced this one (upgrade, re-signup): invalidating it is what Google asks for (F1).
@@ -51,7 +70,7 @@ export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleH
           nextCheck: spec.nextCheck,
         });
       } else {
-        const grant = events.find((e) => isGrant(e) && precedes(read, e) && !stateChangeBetween(events, read, e));
+        const grant = events.find((e) => isGrant(e) && precedes(read, e) && !hasChangeBetween(changes, read, e));
         if (grant) {
           hits.push({
             evidence: [read.i, grant.i],
@@ -64,7 +83,7 @@ export function runStateRule(tl: NormalizedTimeline, spec: StateRuleSpec): RuleH
         if (!grantedBefore(events, read)) continue;
         const later = events.find((e) => precedes(read, e) && (isRevoke(e) || (isOkGet(e) && e.subscriptionState !== spec.state)));
         if (later && isRevoke(later)) continue;
-        const standingGrant = [...events].reverse().find((e) => isGrant(e) && precedes(e, read));
+        const standingGrant = reversed.find((e) => isGrant(e) && precedes(e, read));
         hits.push({
           evidence: standingGrant ? [standingGrant.i, read.i] : [read.i],
           confidence: 'likely',
