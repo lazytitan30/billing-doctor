@@ -40,3 +40,55 @@ jobs:
       # truncated, double-encoded and occasionally corrupted. A different seed
       # each run, so the corpus keeps widening rather than repeating.
       - run: node scripts/fuzz.mjs ${{ github.run_number }} 1500
+
+  # The tarball that gets published is built on the founder's Windows machine,
+  # and the job above compiles from source on each runner, so nothing here had
+  # ever installed what actually ships on a Unix. A CRLF shebang would kill
+  # every `npx billing-doctor` on macOS and Linux and pass every test above.
+  # Found 2026-09-12 by hand, in WSL. So: pack on Windows, then install that
+  # exact file on Linux and macOS, on the engine floor and on current.
+  pack-on-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm pack --pack-destination out
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows-built-tarball
+          path: out/*.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  windows-tarball-on-unix:
+    needs: pack-on-windows
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: windows-built-tarball
+          path: out
+      # Exactly what a stranger types, against exactly the file that would be
+      # uploaded. The shebang is printed as bytes first, so a failure says why.
+      - run: |
+          mkdir sandbox && cd sandbox && npm init -y >/dev/null
+          npm install --no-audit --no-fund ../out/*.tgz
+          head -1 node_modules/billing-doctor/dist/cli.js | od -c | head -2
+          test "$(head -1 node_modules/billing-doctor/dist/cli.js)" = '#!/usr/bin/env node'
+          npx billing-doctor --help >/dev/null
+          npx billing-doctor diagnose node_modules/billing-doctor/fixtures/clean/01-purchase-renew-cancel-expire.json >/dev/null
+          set +e; npx billing-doctor diagnose node_modules/billing-doctor/fixtures/rules/G2-void-then-active.json >/dev/null; code=$?; set -e
+          test "$code" -eq 1
+          npx billing-doctor rule G2 | grep -q billingdoctor.dev
