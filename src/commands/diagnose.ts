@@ -125,7 +125,33 @@ export async function runDiagnose(argv: string[]): Promise<number> {
 
   console.log(`billing-doctor ${VERSION}: ${file}, ${timeline.events.length} events, ${result.summary}`);
   if (values.fetch) {
-    console.log(`fetched ${fetched.length} token${fetched.length === 1 ? '' : 's'} from Google${skipped.length ? `; skipped ${skipped.length} pseudonym${skipped.length === 1 ? '' : 's'} with no map entry (${skipped.join(', ')})` : ''}${values.out ? `; wrote ${values.out}` : ''}`);
+    // Report the answer, not the attempt. Saying "fetched 50 tokens" when all
+    // fifty came back 401 is how somebody spends an afternoon looking in the
+    // wrong place, and it is the same fault B12 exists to catch in other
+    // people's code.
+    const ok = fetched.filter((f) => f.status >= 200 && f.status < 300);
+    const bad = fetched.filter((f) => f.status < 200 || f.status >= 300);
+    const byStatus = [...new Set(bad.map((f) => f.status))].sort((a, b) => a - b);
+    const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    const parts = [`read ${plural(ok.length, 'token')} from Google`];
+    if (bad.length) parts.push(`${plural(bad.length, 'token')} answered ${byStatus.join(', ')}`);
+    if (skipped.length) parts.push(`skipped ${plural(skipped.length, 'pseudonym')} with no map entry (${skipped.join(', ')})`);
+    if (values.out) parts.push(`wrote ${values.out}`);
+    console.log(parts.join('; '));
+    // One status across the board is a credential or a permission problem, not
+    // fifty separate purchase problems.
+    if (bad.length && ok.length === 0 && byStatus.length === 1) {
+      const [only] = byStatus;
+      const why =
+        only === 401
+          ? 'the service-account key was not accepted at all'
+          : only === 403
+            ? 'the key is valid but lacks the Play Console permission, and a fresh grant can take hours to propagate'
+            : only === 404 || only === 410
+              ? 'no token in the map resolved; check the map holds real tokens for this package, and that none is more than sixty days past expiry'
+              : 'every call failed the same way, so look at the credential and the package name before the purchases';
+      console.log(`  every call answered ${only}: ${why}.`);
+    }
   }
   console.log('');
   for (const warning of parsed.warnings) console.log(`warning: ${warning}`);
