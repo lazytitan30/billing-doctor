@@ -79,7 +79,7 @@ Exit codes: 0 nothing to report, 1 a high finding (or an input that could not be
 
 ## The timeline
 
-[docs/timeline-format.md](docs/timeline-format.md) is the contract. Six event kinds: `app` (what the device reported), `api` (a call to the Play Developer API and its answer), `ledger` (what the backend wrote), `rtdn` (a notification as received), `support` (what the user said), `console` (releases and config changes). A `policy` block says what your backend is supposed to do, so a rule can tell your policy from a bug.
+[docs/timeline-format.md](https://github.com/lazytitan30/billing-doctor/blob/main/docs/timeline-format.md) is the contract. Six event kinds: `app` (what the device reported), `api` (a call to the Play Developer API and its answer), `ledger` (what the backend wrote), `rtdn` (a notification as received), `support` (what the user said), `console` (releases and config changes). A `policy` block says what your backend is supposed to do, so a rule can tell your policy from a bug.
 
 ```json
 {
@@ -147,7 +147,7 @@ Every rule has a fixture that proves it fires, and five correct lifecycles that 
 
 ## Contributing
 
-`npm test` builds and runs everything. One file runs alone: `node --test tests/rules-B.test.js`. A new rule needs its file in `src/engine/rules`, its Google fact in `src/google/docs.ts` (the only file with a Google fact, each dated), its fixture with an `expected.json`, and one line in `src/engine/catalogue.ts`. The five clean fixtures must stay at zero findings; a false positive is a release blocker.
+`npm test` builds and runs everything; the runner needs Node 20.9 or newer for `--test-concurrency`, while the tool itself runs on 20.0 (checked there). One file runs alone: `node --test tests/rules-B.test.js`. A new rule needs its file in `src/engine/rules`, its Google fact in `src/google/docs.ts` (the only file with a Google fact, each dated), its fixture with an `expected.json`, and one line in `src/engine/catalogue.ts`. The five clean fixtures must stay at zero findings; a false positive is a release blocker.
 
 ## Licence and trademarks
 
