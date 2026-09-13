@@ -11,19 +11,17 @@
 #   Repeatability. A laptop publish depends on what happens to be in that
 #   folder. This starts from a clean checkout every time.
 #
-# Authentication, in order of preference:
+# Authentication: trusted publishing, and nothing else. npm hands this workflow
+# a short-lived token over OIDC, tied to this repository and this file, that
+# cannot be extracted or replayed. There is no secret in GitHub to leak, which
+# is the point. Configure it once at npmjs.com, Packages, billing-doctor,
+# Settings, Trusted Publisher: GitHub Actions, user lazytitan30, repository
+# billing-doctor, workflow filename release.yml, environment left blank. It
+# can only be set up after the package exists, so 0.1.0 was published by hand.
 #
-#   1. Trusted publishing, which needs no credential at all. npm hands this
-#      workflow a short-lived token over OIDC, tied to this repository and this
-#      file, that cannot be extracted or replayed. Configure it once at
-#      npmjs.com, Packages, billing-doctor, Settings, Trusted publishing, with
-#      the owner, the repository, and this filename. It can only be set up
-#      after the package exists, so the first release is published by hand.
-#
-#   2. An NPM_TOKEN secret, if trusted publishing is not set up. Works, but it
-#      is a long-lived credential sitting in GitHub, and npm is restricting
-#      tokens that bypass two-factor authentication for direct publishing.
-#      Prefer option 1 and delete the secret once it is in place.
+# An NPM_TOKEN secret is not a fallback here any more: npm is restricting
+# tokens that bypass two-factor authentication, and a long-lived credential in
+# CI is exactly the thing provenance is meant to make unnecessary.
 #
 # To release: bump the version, update CHANGELOG.md with a date, commit, then
 #
@@ -79,10 +77,12 @@ jobs:
           fi
           echo "both say $PKG"
 
-      # No `if` on the token: when trusted publishing is configured npm ignores
-      # an empty NODE_AUTH_TOKEN and uses OIDC, and when it is not, the secret
-      # is used. Either way the same command publishes with provenance.
+      # Trusted publishing needs npm 11.5.1 or newer (npm's own docs, read
+      # 2026-09-13), and the npm bundled with Node 22 is 10.x, so upgrade it
+      # first. No token anywhere: the same docs say to omit NODE_AUTH_TOKEN
+      # entirely for an OIDC publish, not to leave it empty. The trusted
+      # publisher is configured once at npmjs.com, package Settings, Trusted
+      # Publisher: lazytitan30 / billing-doctor / release.yml, no environment.
+      - run: npm install -g npm@latest && npm --version
       - name: Publish with provenance
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
