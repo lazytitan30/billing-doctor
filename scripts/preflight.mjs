@@ -143,6 +143,10 @@ check('no CR bytes anywhere in the compiled output', crFiles.length === 0, crFil
 
 check('package.json carries mcpName', Boolean(pkg.mcpName), pkg.mcpName ?? 'missing');
 check('mcpName matches server.json name', pkg.mcpName === json('server.json').name, json('server.json').name);
+// The registry caps description at 100 characters and refuses the publish
+// otherwise. It refused ours on 2026-09-13; a check here costs nothing.
+const serverDescription = json('server.json').description ?? '';
+check('server.json description fits the registry limit', serverDescription.length <= 100, `${serverDescription.length} chars`);
 
 // ---- Report --------------------------------------------------------------
 
