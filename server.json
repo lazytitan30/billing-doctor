@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.lazytitan30/billing-doctor",
-  "description": "Diagnose Google Play Billing incidents from a redacted timeline: evidence, Google's rule with a dated link, and the next check. Local, read-only, stdio. Not affiliated with Google.",
+  "description": "Diagnose Google Play Billing incidents locally, with evidence. Not affiliated with Google.",
   "repository": {
     "url": "https://github.com/lazytitan30/billing-doctor",
     "source": "github"
