@@ -6,9 +6,14 @@ It is for developers who run their own Google Play Billing backend, in Node, Pyt
 
 ## Twenty seconds
 
+The fixture below ships in the repository, so start from a checkout:
+
 ```bash
+git clone https://github.com/lazytitan30/billing-doctor && cd billing-doctor
 npx billing-doctor diagnose fixtures/rules/G2-void-then-active.json
 ```
+
+(The same fixtures ship inside the npm package: after `npm install -g billing-doctor` they are under `$(npm root -g)/billing-doctor/fixtures/`.)
 
 ```
 billing-doctor 0.1.0: fixtures/rules/G2-void-then-active.json, 11 events, 1 finding: 1 high
