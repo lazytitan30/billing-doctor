@@ -6,6 +6,8 @@
 
 **How it happens.** Every version has a two-year cycle, and the migration touches the exact places bugs hide: pending purchases (`enablePendingPurchases` is required; grant nothing and acknowledge nothing while PENDING), `queryPurchasesAsync` on connection and resume, the purchases-updated listener, product details, and the acknowledgement path. A rushed migration surfaces three days later as refunds.
 
+One change has no three-day warning. Version 8 removed `queryPurchaseHistory()`, and `queryPurchasesAsync` returns only active subscriptions and unconsumed one-time purchases ("Only active subscriptions and non-consumed one-time purchases are returned", BillingClient reference, read 2026-09-14). A restore that reads the device can no longer see a consumable the user bought and consumed before a reinstall; only a record the backend kept can restore it. The tickets say "restore finds nothing since the update", and they come from every user who reinstalls.
+
 **Check it.** Take a timeline of the first real purchase on the new build:
 
 ```bash
@@ -13,7 +15,7 @@ billing-doctor init                  # writes the policy block from questions
 billing-doctor diagnose timeline.json
 ```
 
-Rules that speak here: **A6** (a release below 8 after the gate), **B1**, **B2**, **B3** (acknowledgement and pending purchases), **B6** (grant before verification), **H4** (no `queryPurchasesAsync` on resume).
+Rules that speak here: **A6** (a release below 8 after the gate), **B1**, **B2**, **B3** (acknowledgement and pending purchases), **B6** (grant before verification), **H4** (no `queryPurchasesAsync` on resume), **K16** (a restore that relies on the device for consumed purchases, which version 8 cannot return).
 
 **Fix, in short.** Follow the migration checklist: pending purchases, the async query, server-side acknowledgement after the grant, consumables consumed, replacements with an explicit mode and `linkedPurchaseToken` handled. Watch the acknowledgement watchdog's counts for a week after release. The Incident Kit's `checklists/library-8-9-migration.md` is the list.
 

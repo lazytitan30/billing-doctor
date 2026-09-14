@@ -25,7 +25,7 @@
 #
 # To release: bump the version, update CHANGELOG.md with a date, commit, then
 #
-#   git tag v0.1.0 && git push origin v0.1.0
+#   git tag v0.1.1 && git push origin v0.1.1
 #
 # Everything below has to pass before anything is published, and a publish
 # cannot be taken back.
