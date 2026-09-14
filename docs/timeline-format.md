@@ -45,13 +45,15 @@ Every event has `t` (ISO 8601 with `Z` or an offset; a bare local time is refuse
 
 | Field | Meaning |
 |---|---|
-| `type` | `purchase_result`, `query_purchases`, `app_start`, `app_resume`, `billing_connected`, `launch_billing_flow`, `acknowledge`, `consume`. |
-| `productId`, `purchaseState` | From the `Purchase` object: `PURCHASED`, `PENDING`, `UNSPECIFIED_STATE`. |
+| `type` | `purchase_result`, `query_purchases`, `query_products`, `app_start`, `app_resume`, `billing_connected`, `connection_lost`, `launch_billing_flow`, `acknowledge`, `consume`. |
+| `productId`, `purchaseState` | From the `Purchase` object: `PURCHASED`, `PENDING`, `UNSPECIFIED_STATE`. On a `purchase_result`, or on a `query_purchases` that returned the purchase, which the rules read as the same fact. |
 | `obfuscatedAccountId` | What the app passed at purchase time. `null` if it passed nothing. |
 | `quantity` | For multi-quantity one-time products. |
 | `includeSuspendedSubscriptions` | On `query_purchases`, whether the parameter was set. |
 | `replacementMode`, `oldToken` | For an upgrade, downgrade or re-signup: the mode and the token being replaced. |
 | `googleAccount`, `appAccount` | Pseudonyms for the Google account that paid and the app account signed in, when they differ. |
+| `responseCode`, `errorCode`, `errorMessage` | Google's `BillingResponseCode` when the app can see it; the wrapper's own code or message when it cannot. The rules read either, with lower confidence when they had to read text. |
+| `requested`, `returned` | On `query_products`: how many product ids were asked for and how many came back. On `query_purchases`: how many purchases came back. |
 
 ### `api`: a call to the Google Play Developer API and its answer
 

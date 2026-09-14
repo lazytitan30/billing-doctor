@@ -1,0 +1,109 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "app_start"
+    },
+    {
+      "t": "2026-09-01T10:01:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_a1",
+      "productId": "basic_monthly",
+      "purchaseState": "PURCHASED"
+    },
+    {
+      "t": "2026-09-01T10:01:01Z",
+      "kind": "app",
+      "type": "acknowledge",
+      "token": "tok_a1"
+    },
+    {
+      "t": "2026-09-02T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_b2",
+      "productId": "basic_monthly",
+      "purchaseState": "PURCHASED"
+    },
+    {
+      "t": "2026-09-02T10:00:01Z",
+      "kind": "app",
+      "type": "acknowledge",
+      "token": "tok_b2"
+    },
+    {
+      "t": "2026-09-03T10:00:00Z",
+      "kind": "app",
+      "type": "purchase_result",
+      "token": "tok_c3",
+      "productId": "basic_monthly",
+      "purchaseState": "PURCHASED"
+    },
+    {
+      "t": "2026-09-03T10:00:01Z",
+      "kind": "app",
+      "type": "acknowledge",
+      "token": "tok_c3"
+    },
+    {
+      "t": "2026-09-06T10:00:00Z",
+      "kind": "support",
+      "note": "refunds never show up anywhere; we only find out when the user complains"
+    }
+  ]
+}

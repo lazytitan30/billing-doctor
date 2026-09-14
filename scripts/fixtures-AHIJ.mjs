@@ -179,10 +179,13 @@ export function makeFixtures(b) {
     expected: expect('I4', 'info', 'certain', [8]),
   };
 
+  // The backend looked the token up and wrote nothing. The lookup is what
+  // puts the ledger in the file; without any ledger row the rule stays quiet.
   rules['I5-verified-nothing-written'] = {
     timeline: timeline([
       purchase('tok_a1', S),
       get('tok_a1', at(S, 2 * SEC), { ack: PENDING_ACK, expiry: E }),
+      ledger('lookup', 'tok_a1', at(S, 3 * SEC), { lookup: 'token', matchedUsers: 1 }),
       api('subscriptions.acknowledge', 'tok_a1', at(S, 4 * SEC)),
       rtdn(4, 'tok_a1', at(S, 9 * SEC), { messageId: 'm-1', eventTime: S }),
       get('tok_a1', at(S, 10 * SEC), { expiry: E }),

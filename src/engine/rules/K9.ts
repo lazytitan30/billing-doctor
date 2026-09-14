@@ -1,5 +1,6 @@
 import { defineRule } from '../rule.js';
-import { SEC_MS, isApp, isPurchaseResult, precedes } from '../helpers.js';
+import { SEC_MS, isApp, isPurchaseResult, type Ev } from '../helpers.js';
+import { isConnected } from './deviceCodes.js';
 
 const SAME_EVENT_MS = 3 * SEC_MS;
 
@@ -11,7 +12,7 @@ export const K9 = defineRule({
   severity: 'medium',
   title: 'More than one billing client, so one purchase arrives twice',
   detects:
-    'Two purchase results for the same token within three seconds, or a second billing_connected with no disconnection in between. Google recommends one active connection precisely to avoid duplicate callbacks.',
+    'Two purchase results for the same token within three seconds, or a second successful billing_connected in the same app session with no disconnection between them. Google recommends one active connection precisely to avoid duplicate callbacks.',
   run(tl) {
     const hits = [];
     for (const [token, events] of tl.byToken) {
@@ -27,19 +28,28 @@ export const K9 = defineRule({
         break;
       }
     }
-    const connections = tl.events.filter((e) => isApp(e) && e.type === 'billing_connected');
-    for (let n = 1; n < connections.length; n += 1) {
-      const lost = tl.events.some(
-        (e) => isApp(e) && e.type === 'connection_lost' && precedes(connections[n - 1], e) && precedes(e, connections[n]),
-      );
-      if (lost) continue;
-      hits.push({
-        evidence: [connections[n - 1].i, connections[n].i],
-        confidence: 'possible' as const,
-        mechanism: `The app reported a billing connection at #${connections[n - 1].i} and again at #${connections[n].i} with no disconnection recorded in between, which suggests a second client.`,
-        nextCheck: `Confirm how many BillingClient instances the app builds. One per process, held for its lifetime, is the shape to aim for.`,
-      });
-      break;
+    // A second connection counts only inside one process: an app_start is a
+    // new process with a client of its own, and an attempt that failed opened
+    // nothing, so a retry after it is not a second client. Both shapes fired
+    // this rule on the 2026-09-13 sample, seven times for one true case.
+    let open: Ev | undefined;
+    for (const e of tl.events) {
+      if (!isApp(e)) continue;
+      if (e.type === 'app_start' || e.type === 'connection_lost') {
+        open = undefined;
+        continue;
+      }
+      if (!isConnected(e)) continue;
+      if (open) {
+        hits.push({
+          evidence: [open.i, e.i],
+          confidence: 'possible' as const,
+          mechanism: `The app reported a billing connection at #${open.i} and again at #${e.i} in the same session, with no disconnection recorded in between, which suggests a second client.`,
+          nextCheck: `Confirm how many BillingClient instances the app builds. One per process, held for its lifetime, is the shape to aim for.`,
+        });
+        break;
+      }
+      open = e;
     }
     return hits;
   },

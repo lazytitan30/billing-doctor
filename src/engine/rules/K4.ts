@@ -1,5 +1,12 @@
 import { defineRule } from '../rule.js';
-import { isApp, isConsume, isPurchaseResult, isRevoke, precedes, tokenEvents } from '../helpers.js';
+import { isApp, isConsume, isPurchaseResult, isRevoke, precedes, tokenEvents, type AppEv } from '../helpers.js';
+
+// A purchase and a flow that name different accounts belong to different
+// people, and a second buyer of the same product is not a re-purchase.
+function differentBuyer(a: AppEv, b: AppEv): boolean {
+  const differs = (x: string | null | undefined, y: string | null | undefined) => Boolean(x && y && x !== y);
+  return differs(a.appAccount, b.appAccount) || differs(a.googleAccount, b.googleAccount) || differs(a.obfuscatedAccountId, b.obfuscatedAccountId);
+}
 
 // Offering a product the user already holds. Google says not to.
 export const K4 = defineRule({
@@ -8,7 +15,7 @@ export const K4 = defineRule({
   severity: 'medium',
   title: 'Purchase flow launched for a product the user already owns',
   detects:
-    'A launch_billing_flow for a product the device already reported as PURCHASED, where that purchase was never consumed or revoked. The flow can only fail as already owned.',
+    'A launch_billing_flow for a product the device already reported as PURCHASED for the same account, where that purchase was never consumed or revoked. The flow can only fail as already owned.',
   run(tl) {
     const hits = [];
     for (const flow of tl.events) {
@@ -17,7 +24,7 @@ export const K4 = defineRule({
       if (flow.replacementMode || flow.oldToken) continue;
       const owned = tl.events.find((p) => {
         if (!isPurchaseResult(p) || p.productId !== flow.productId || p.purchaseState !== 'PURCHASED') return false;
-        if (!precedes(p, flow)) return false;
+        if (!precedes(p, flow) || differentBuyer(p, flow)) return false;
         const after = p.token ? tokenEvents(tl, p.token) : [];
         return !after.some((e) => (isConsume(e) || isRevoke(e)) && precedes(e, flow));
       });

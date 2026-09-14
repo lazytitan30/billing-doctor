@@ -1,0 +1,103 @@
+{
+  "schema": "billing-doctor-timeline/1",
+  "app": {
+    "packageName": "com.example.app",
+    "billingLibrary": "8.0.0",
+    "backend": "node",
+    "products": {
+      "basic_monthly": "subscription",
+      "plus_monthly": "subscription",
+      "basic_prepaid": "subscription",
+      "coins_100": "consumable",
+      "pack_deluxe": "non-consumable",
+      "addon_extra": "subscription"
+    }
+  },
+  "policy": {
+    "grantOn": [
+      "SUBSCRIPTION_STATE_ACTIVE",
+      "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+      "SUBSCRIPTION_STATE_CANCELED"
+    ],
+    "revokeOn": [
+      "SUBSCRIPTION_STATE_ON_HOLD",
+      "SUBSCRIPTION_STATE_PAUSED",
+      "SUBSCRIPTION_STATE_EXPIRED"
+    ],
+    "ackWithinHours": 72,
+    "refetchOnEveryNotification": true,
+    "handledNotificationTypes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "voidedPurchasesSweep": true
+  },
+  "config": {
+    "rtdn": {
+      "pushEndpointAuth": "oidc"
+    }
+  },
+  "events": [
+    {
+      "t": "2026-09-01T10:00:00Z",
+      "kind": "app",
+      "type": "app_start"
+    },
+    {
+      "t": "2026-09-01T10:00:00.400Z",
+      "kind": "app",
+      "type": "billing_connected"
+    },
+    {
+      "t": "2026-09-01T10:00:00.600Z",
+      "kind": "app",
+      "type": "query_purchases"
+    },
+    {
+      "t": "2026-09-01T10:00:30Z",
+      "kind": "app",
+      "type": "launch_billing_flow",
+      "productId": "basic_monthly",
+      "note": "Play confirmed the purchase; no purchase update ever arrived"
+    },
+    {
+      "t": "2026-09-01T11:00:00Z",
+      "kind": "app",
+      "type": "app_start"
+    },
+    {
+      "t": "2026-09-01T11:00:00.400Z",
+      "kind": "app",
+      "type": "billing_connected"
+    },
+    {
+      "t": "2026-09-01T11:00:00.900Z",
+      "kind": "app",
+      "type": "query_purchases",
+      "returned": 1,
+      "token": "tok_a1",
+      "productId": "basic_monthly",
+      "purchaseState": "PURCHASED"
+    },
+    {
+      "t": "2026-09-01T12:00:00Z",
+      "kind": "support",
+      "note": "the purchase stream never fired; on relaunch the subscription is there, unacknowledged"
+    }
+  ]
+}

@@ -82,14 +82,6 @@
       }
     },
     {
-      "t": "2026-09-01T10:00:03Z",
-      "kind": "ledger",
-      "op": "lookup",
-      "token": "tok_a1",
-      "lookup": "token",
-      "matchedUsers": 1
-    },
-    {
       "t": "2026-09-01T10:00:04Z",
       "kind": "api",
       "call": "subscriptions.acknowledge",

@@ -61,6 +61,12 @@ export function assertCompositeFixture(name) {
   assert.ok(diagnosis.findings.length >= 3, `${name}: a composite fixture should produce several findings`);
 }
 
+// A noise fixture says exactly what the tool says now on a shape that once
+// produced findings about the file rather than the fault.
+export function assertNoiseFixture(name) {
+  return assertExpected('noise', name);
+}
+
 export function assertClean(name) {
   const diagnosis = runFixture('clean', name);
   const ids = diagnosis.findings.map((f) => `${f.ruleId}[${f.evidence.join(',')}]`);
