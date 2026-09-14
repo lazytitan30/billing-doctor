@@ -2,9 +2,12 @@ import { defineRule } from '../rule.js';
 import { isApp, type AppEv } from '../helpers.js';
 import { howKnown, outcomeOf } from './deviceCodes.js';
 
-// Codes Play answers when it refuses a flow outright. A cancellation, a
-// network drop or a lost connection say nothing about the plans.
-const REFUSED = new Set([2, 5, 6]);
+// How the refusal arrived in the one case on record (the 2026-09-13 sample,
+// so08): SERVICE_UNAVAILABLE, with DF-DFERH-01 in the message. Google's page
+// does not say how it is reported, so nothing else is guessed at: a
+// DEVELOPER_ERROR on a replacement is K6's, and the first sample had one
+// whose cause was an unacknowledged subscription, not the price.
+const REFUSED = new Set([2]);
 
 // The prorated-charge mode is for upgrades only, and Google measures an
 // upgrade by the price per unit of time, not by the plan's length or its name.
@@ -14,7 +17,7 @@ export const F8 = defineRule({
   severity: 'medium',
   title: 'CHARGE_PRORATED_PRICE used for a change that is not a price increase',
   detects:
-    'A replacement flow in CHARGE_PRORATED_PRICE mode that Play refused. Google allows the mode only for an upgrade where the price per unit of time increases, and a plan that is cheaper per unit comes back as a server error that no retry can clear.',
+    'A replacement flow in CHARGE_PRORATED_PRICE mode that failed with SERVICE_UNAVAILABLE. Google allows the mode only for an upgrade where the price per unit of time increases, and a plan that is cheaper per unit comes back as that server error, which no retry can clear.',
   run(tl) {
     const failed = tl.events.filter((e): e is AppEv => {
       if (!isApp(e) || e.type !== 'launch_billing_flow' || e.replacementMode !== 'CHARGE_PRORATED_PRICE') return false;

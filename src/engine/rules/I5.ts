@@ -22,6 +22,10 @@ export const I5 = defineRule({
       const read = events.find((e) => isOkGet(e) && precedes(purchase, e));
       if (!read) continue;
       if (events.some((e) => isLedgerWrite(e) && precedes(purchase, e))) continue;
+      // A lookup that matched nobody explains the missing write: there was no
+      // user to write for. That is H1's or H3's finding, not a silent failure
+      // of the write itself; the first sample's gh14 is the case.
+      if (events.some((e) => isLedger(e) && e.op === 'lookup' && e.matchedUsers === 0 && precedes(purchase, e))) continue;
       // A client_response is what the backend said, not what it wrote. On the
       // 2026-09-13 sample a verify endpoint answered success over an empty
       // ledger, and counting the reply as a write hid exactly that.

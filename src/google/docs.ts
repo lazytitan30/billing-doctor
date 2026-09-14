@@ -838,7 +838,7 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
     title: 'Subscriptions: replacement modes, CHARGE_PRORATED_PRICE',
     quote: 'This option is available only for a subscription item upgrade, where the price per unit of time increases.',
     context:
-      'A note under the mode in the replacement modes table, which describes it as: "The subscription item is upgraded immediately, and the billing cycle remains the same. The price difference for the remaining period is then charged to the user." A plan that is cheaper per unit of time is not an upgrade in this sense, and Play refuses the flow with a server error.',
+      'A note under the mode in the replacement modes table, which describes it as: "The subscription item is upgraded immediately, and the billing cycle remains the same. The price difference for the remaining period is then charged to the user." A plan that is cheaper per unit of time is not an upgrade in this sense. Google does not say how the refusal is reported; the reporter in the 2026-09-13 sample saw SERVICE_UNAVAILABLE with DF-DFERH-01, which is what the rule reads.',
     url: URLS.subscriptions,
     readOn: READ_ON_SAMPLE,
   },
