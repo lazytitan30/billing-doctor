@@ -16,7 +16,7 @@ npx billing-doctor diagnose fixtures/rules/G2-void-then-active.json
 (The same fixtures ship inside the npm package: after `npm install -g billing-doctor` they are under `$(npm root -g)/billing-doctor/fixtures/`.)
 
 ```
-billing-doctor 0.1.0: fixtures/rules/G2-void-then-active.json, 11 events, 1 finding: 1 high
+billing-doctor 0.1.1: fixtures/rules/G2-void-then-active.json, 11 events, 1 finding: 1 high
 
 HIGH
   G2  Voided purchase, then a fetch reading ACTIVE, and no revoke  [certain]
@@ -39,21 +39,21 @@ Every finding carries the events it rests on, the mechanism, Google's rule quote
 
 You give it a **timeline**: one JSON file with what happened to one purchase, assembled from your logs, your database, the Cloud Console and the support ticket. The notifications Google sent, the API answers, what your backend wrote, what the user said. Tokens are pseudonyms; nothing real goes in the file.
 
-It checks the timeline against **93 rules** in eleven groups. Every one of them rests on a sentence from Google's own documentation, quoted verbatim with the URL and the date it was read:
+It checks the timeline against **97 rules** in eleven groups. Every one of them rests on a sentence from Google's own documentation, quoted verbatim with the URL and the date it was read:
 
 | Group | What it catches |
 |---|---|
 | A. Configuration and permissions | no notifications at all, 401/403, the topic in another project, negative acks, an unauthenticated endpoint, a release below Billing Library 8 after the 2026-08-31 gate, one-time notifications never switched on |
-| B. Purchase and acknowledgement | unacknowledged purchases Google refunded, acknowledging or granting while PENDING, consumables acknowledged not consumed, grants before verification, double grants, acknowledgement failures the client never heard about, prepaid windows, multi-quantity purchases granted as one, plan changes blocked by an unacknowledged subscription |
+| B. Purchase and acknowledgement | unacknowledged purchases Google refunded, acknowledging or granting while PENDING, consumables acknowledged not consumed, grants before verification, double grants, acknowledgement failures the client never heard about, prepaid windows, multi-quantity purchases granted as one, plan changes blocked by an unacknowledged subscription, purchases never acknowledged with no refund in the file yet |
 | C. Notifications | the same message applied twice, out-of-order notifications, writes without re-fetching, revoking on a message with no id, unhandled types, chargeback reviews treated as refunds, test notifications applied, messages never acknowledged and never applied |
 | D. State interpretation | expiry from the wrong source, CANCELED and grace period treated as no access, hold and pause treated as access, EXPIRED still granting, line items ignored, the deprecated v1 resource, test purchases counted, prepaid treated as renewing, tokens used past the sixty-day window |
 | E. Lifecycle events | RECOVERED with no re-grant, RESTARTED as a new token, DEFERRED with the old expiry, hard-coded grace and hold, scheduled cancellations and scheduled pauses treated as immediate, the deprecated type 8, churn that was really an unaccepted price rise |
-| F. Upgrades and linked tokens | the old token still granting, DEFERRED replacements granted early, re-signups bound to the wrong token, expiry not re-read after proration, out-of-app resubscribes left unlinked, upgrades that drop the obfuscated account id |
+| F. Upgrades and linked tokens | the old token still granting, DEFERRED replacements granted early, re-signups bound to the wrong token, expiry not re-read after proration, out-of-app resubscribes left unlinked, upgrades that drop the obfuscated account id, the prorated-charge mode used for a plan that is cheaper per unit of time |
 | G. Refunds and voided purchases | REVOKED still granting, the void that the state read disagrees with, partial refunds handled as full, no voided-purchases sweep, refunds without revoke, cancel where revoke was meant, refunds of an order that is not the latest |
 | H. Account binding and restore | unmappable notifications, raw account ids, findOne on a shared token, no queryPurchasesAsync on resume, suspended subscriptions not asked for, a different Google account |
 | I. Testing and Console | test renewals minutes apart, test rows in production, approved but not published, the 12-tester rule, verified but nothing written, tester purchases refunded after three minutes |
 | J. Ledger integrity | grants without an idempotency key, tokens kept after expiry, real data in the timeline, expiry in local time, rows keyed on the order id |
-| K. The device and the Play Billing Library | an empty catalogue, calls made while disconnected, already-owned purchases nobody investigated, recoverable failures never retried, unrecoverable ones retried anyway, DEVELOPER_ERROR, stale product details, duplicate callbacks, overlapping queries, the base plan id used as the product id, purchases that never reached the server, failures reported as success, cancellations treated as errors |
+| K. The device and the Play Billing Library | an empty catalogue, calls made while disconnected, already-owned purchases nobody investigated, recoverable failures never retried, unrecoverable ones retried anyway, DEVELOPER_ERROR, stale product details, duplicate callbacks, overlapping queries, the base plan id used as the product id, purchases that never reached the server, failures reported as success, cancellations treated as errors, the product refused as unavailable at purchase time, restores that rely on the device for consumed purchases after Billing Library 8 |
 
 `billing-doctor rules` lists them; `billing-doctor rule B1` prints one in full.
 
@@ -144,7 +144,7 @@ Not an SDK, not a hosted service, not a subscription platform, not a dashboard, 
 
 ## Where this comes from
 
-The rules are Google's own documentation, turned into checks a machine can run. Every one of the 93 quotes a sentence Google published, with the page, the section and the date it was read, and all 93 live in one file (`src/google/docs.ts`) so a documentation change is a one-file diff with failing tests beside it. The sources are the Android developer site, the Play Developer API reference, the Play Console help centre and the Pub/Sub documentation.
+The rules are Google's own documentation, turned into checks a machine can run. Every one of the 97 quotes a sentence Google published, with the page, the section and the date it was read, and all 97 live in one file (`src/google/docs.ts`) so a documentation change is a one-file diff with failing tests beside it. The sources are the Android developer site, the Play Developer API reference, the Play Console help centre and the Pub/Sub documentation.
 
 Eight rules also carry a field observation from a live app, dated and marked as an observation, always beside Google's sentence and never in place of it. Those exist because documentation says what should happen and a support inbox says what does: a wrapper that never surfaces the response code, a plugin that returns the base plan id as the product id, a web fallback that resolves with nothing and looks like a sale.
 

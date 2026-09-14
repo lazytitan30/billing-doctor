@@ -24,6 +24,10 @@ export const K5 = defineRule({
       // automatic retry is unlikely to help, so telling anyone to retry here
       // would be wrong.
       if (outcome.code === 3 || outcome.code === -2) continue;
+      // A CHARGE_PRORATED_PRICE replacement that Play refused comes back as
+      // SERVICE_UNAVAILABLE, and no retry changes the price per unit of time.
+      // That one is F8's.
+      if (outcome.code === 2 && e.type === 'launch_billing_flow' && e.replacementMode === 'CHARGE_PRORATED_PRICE') continue;
       const retried = tl.events.some(
         (r) => isApp(r) && r.type === e.type && precedes(e, r) && r.tMs <= e.tMs + WINDOW_MS,
       );

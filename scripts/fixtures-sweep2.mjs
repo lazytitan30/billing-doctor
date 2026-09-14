@@ -325,11 +325,14 @@ export function makeFixtures(b) {
     expected: expect('K9', 'medium', 'likely', [0, 1]),
   };
 
-  // The device completed a purchase the server never heard about.
+  // The device completed a purchase the server never heard about. The backend
+  // is in the file (it looked another token up that day), so its silence on
+  // this one is a fact about the purchase, not about the file.
   rules['K10-purchase-never-reached-server'] = {
     timeline: timeline([
       ...boot(S),
       app('purchase_result', at(S, 30 * SEC), { token: 'tok_a1', productId: 'basic_monthly', purchaseState: 'PURCHASED' }),
+      ledger('lookup', 'tok_b2', at(S, HOUR), { lookup: 'token', matchedUsers: 1 }),
       support(at(S, 3 * DAY), 'user has a receipt from Google and no subscription in the app'),
     ]),
     expected: expect('K10', 'high', 'certain', [3]),
@@ -375,8 +378,11 @@ export function makeFixtures(b) {
     timeline: timeline([
       ...boot(S),
       app('query_products', at(S, 2 * SEC), { requested: 1, returned: 1, durationMs: 200 }),
-      app('launch_billing_flow', at(S, 20 * SEC), { productId: 'basic_monthly', responseCode: 4 }),
+      app('launch_billing_flow', at(S, 20 * SEC), { productId: 'basic_monthly', responseCode: 6 }),
       ledger('client_response', undefined, at(S, 25 * SEC), { result: 'success', note: 'the shop closed and showed the thank-you screen' }),
+      // The user tried once more and gave up. A retry keeps K5 out of this
+      // fixture; a cancellation nothing follows keeps K14 out.
+      app('launch_billing_flow', at(S, 5 * MIN), { productId: 'basic_monthly', responseCode: 1 }),
     ]),
     expected: expect('K13', 'medium', 'certain', [4, 5]),
   };

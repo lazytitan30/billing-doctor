@@ -1,8 +1,6 @@
 import { defineRule } from '../rule.js';
 import { HOUR_MS, isApp, precedes } from '../helpers.js';
-import { outcomeOf, saysStaleDetails } from './deviceCodes.js';
-
-const STALE_AFTER_MS = 6 * HOUR_MS;
+import { STALE_DETAILS_MS, outcomeOf, saysStaleDetails } from './deviceCodes.js';
 
 // Product details go stale. Launching the flow with an old object fails.
 export const K8 = defineRule({
@@ -24,7 +22,7 @@ export const K8 = defineRule({
       const ageMs = flow.tMs - last.tMs;
       // The library sometimes says so outright, and then the clock does not matter.
       const said = saysStaleDetails(flow);
-      if (!said && ageMs < STALE_AFTER_MS) continue;
+      if (!said && ageMs < STALE_DETAILS_MS) continue;
       hits.push({
         evidence: [last.i, flow.i],
         confidence: said ? ('certain' as const) : ('likely' as const),

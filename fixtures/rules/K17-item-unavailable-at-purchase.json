@@ -69,25 +69,25 @@
       "type": "query_purchases"
     },
     {
-      "t": "2026-09-01T10:00:30Z",
+      "t": "2026-09-01T10:00:02Z",
       "kind": "app",
-      "type": "purchase_result",
-      "token": "tok_a1",
+      "type": "query_products",
+      "requested": 1,
+      "returned": 1,
+      "responseCode": 0
+    },
+    {
+      "t": "2026-09-01T10:01:00Z",
+      "kind": "app",
+      "type": "launch_billing_flow",
       "productId": "basic_monthly",
-      "purchaseState": "PURCHASED"
+      "responseCode": 4,
+      "errorMessage": "ITEM_UNAVAILABLE"
     },
     {
       "t": "2026-09-01T11:00:00Z",
-      "kind": "ledger",
-      "op": "lookup",
-      "token": "tok_b2",
-      "lookup": "token",
-      "matchedUsers": 1
-    },
-    {
-      "t": "2026-09-04T10:00:00Z",
       "kind": "support",
-      "note": "user has a receipt from Google and no subscription in the app"
+      "note": "the product was created in the Console this morning; the flow is refused for every tester"
     }
   ]
 }

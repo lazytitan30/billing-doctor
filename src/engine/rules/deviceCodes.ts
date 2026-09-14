@@ -6,7 +6,11 @@
 // number when there is one and from the wrapper's own words when there is not.
 // Guessing from text is weaker evidence, so the caller lowers its confidence.
 
-import { isApp, type AppEv, type Ev } from '../helpers.js';
+import { HOUR_MS, isApp, type AppEv, type Ev } from '../helpers.js';
+
+// How old a catalogue query may be before a purchase flow launched from it is
+// read as stale (K8) rather than as refused (K17).
+export const STALE_DETAILS_MS = 6 * HOUR_MS;
 
 export const RESPONSE_CODES: Record<number, string> = {
   0: 'OK',
@@ -83,6 +87,14 @@ export function saysStaleDetails(e: Ev): boolean {
 export function failedWith(e: Ev, code: number): DeviceOutcome | undefined {
   const outcome = outcomeOf(e);
   return outcome && outcome.code === code ? outcome : undefined;
+}
+
+// A billing_connected that actually connected. Wrappers log the attempt with
+// the code it came back with, and an attempt that failed opened nothing.
+export function isConnected(e: Ev): e is AppEv {
+  if (!isApp(e) || (e as AppEv).type !== 'billing_connected') return false;
+  const outcome = outcomeOf(e);
+  return !outcome || outcome.code === 0;
 }
 
 // Every device event that failed, in order.

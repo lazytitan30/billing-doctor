@@ -54,6 +54,13 @@
   },
   "events": [
     {
+      "t": "2026-08-30T10:00:00Z",
+      "kind": "console",
+      "note": "release built against Billing Library 8 rolled out to production",
+      "billingLibrary": "8.0.0",
+      "release": "published"
+    },
+    {
       "t": "2026-09-01T10:00:00Z",
       "kind": "app",
       "type": "app_start"
@@ -64,30 +71,16 @@
       "type": "billing_connected"
     },
     {
-      "t": "2026-09-01T10:00:00.600Z",
+      "t": "2026-09-01T10:00:00.900Z",
       "kind": "app",
-      "type": "query_purchases"
+      "type": "query_purchases",
+      "returned": 0,
+      "responseCode": 0
     },
     {
-      "t": "2026-09-01T10:00:30Z",
-      "kind": "app",
-      "type": "purchase_result",
-      "token": "tok_a1",
-      "productId": "basic_monthly",
-      "purchaseState": "PURCHASED"
-    },
-    {
-      "t": "2026-09-01T11:00:00Z",
-      "kind": "ledger",
-      "op": "lookup",
-      "token": "tok_b2",
-      "lookup": "token",
-      "matchedUsers": 1
-    },
-    {
-      "t": "2026-09-04T10:00:00Z",
+      "t": "2026-09-03T10:00:00Z",
       "kind": "support",
-      "note": "user has a receipt from Google and no subscription in the app"
+      "note": "restore finds nothing for anyone who reinstalled; the same users restored fine before the update"
     }
   ]
 }

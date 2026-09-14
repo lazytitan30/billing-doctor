@@ -27,6 +27,11 @@ export const READ_ON_DEVICE = '2026-09-10';
 // rest on, read the same day.
 export const READ_ON_FIELD = '2026-09-10';
 
+// The second measurement (2026-09-13, thirty-five incidents nobody here wrote,
+// scored with the rules frozen) left four blind spots worth a rule. These are
+// the sentences they rest on, read the day after.
+export const READ_ON_SAMPLE = '2026-09-14';
+
 const URLS = {
   rtdn: 'https://developer.android.com/google/play/billing/rtdn-reference',
   subscriptionsv2: 'https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2',
@@ -53,6 +58,7 @@ const URLS = {
   priceChanges: 'https://developer.android.com/google/play/billing/price-changes',
   migrate8: 'https://developer.android.com/google/play/billing/migrate-gpblv8',
   refundHelp: 'https://support.google.com/googleplay/android-developer/answer/2741495',
+  billingClient: 'https://developer.android.com/reference/com/android/billingclient/api/BillingClient',
 } as const;
 
 const MUST_CALL_API =
@@ -816,6 +822,42 @@ export const GOOGLE_RULES: Record<string, GoogleRule> = {
       'When Google holds a purchase and the device query returns nothing, the app cannot process what it cannot see. The purchase is real, the entitlement is missing, and buying again is refused as already owned.',
     url: URLS.integrate,
     readOn: READ_ON_FIELD,
+  },
+
+  // ---- Read after the second measurement: the four blind spots it left ----
+
+  B14: {
+    title: 'Integrate the library: acknowledging purchases',
+    quote: THREE_DAYS,
+    context:
+      "B1 sees the refund arrive; this rule sees the window close with nothing acknowledged and nothing recorded either way, which on a timeline with no server events is all a reporter has. The full sentence: acknowledging the purchase \"must be done within three days so that the purchase isn't automatically refunded and entitlement revoked.\"",
+    url: URLS.integrate,
+    readOn: READ_ON_SAMPLE,
+  },
+  F8: {
+    title: 'Subscriptions: replacement modes, CHARGE_PRORATED_PRICE',
+    quote: 'This option is available only for a subscription item upgrade, where the price per unit of time increases.',
+    context:
+      'A note under the mode in the replacement modes table, which describes it as: "The subscription item is upgraded immediately, and the billing cycle remains the same. The price difference for the remaining period is then charged to the user." A plan that is cheaper per unit of time is not an upgrade in this sense, and Play refuses the flow with a server error.',
+    url: URLS.subscriptions,
+    readOn: READ_ON_SAMPLE,
+  },
+  K16: {
+    title: 'BillingClient: queryPurchasesAsync',
+    quote: 'Only active subscriptions and non-consumed one-time purchases are returned.',
+    context:
+      'The 8.0.0 release notes, 2025-06-30: "The queryPurchaseHistory() method that was previously marked as deprecated has now been removed." The page they point to says what replaces it: "If your app would like to track a user\'s purchase history your app should keep track of the history on your apps backend."',
+    url: URLS.billingClient,
+    readOn: READ_ON_SAMPLE,
+  },
+  K17: {
+    title: 'Handle BillingResult response codes: ITEM_UNAVAILABLE',
+    quote:
+      "To be available for purchase, a product needs to be active, its app needs to be published, and its app needs to be available in the user's country.",
+    context:
+      'The same entry: "Sometimes, in particular during testing, everything is correct in the product configuration, but users still see this error. This might be due to a propagation delay of the product details across Google\'s servers. Try again later." K1 reads this code off an empty catalogue query; this rule reads it off the purchase flow.',
+    url: URLS.errors,
+    readOn: READ_ON_SAMPLE,
   },
 };
 

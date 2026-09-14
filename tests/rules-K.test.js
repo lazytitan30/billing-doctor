@@ -10,7 +10,7 @@ const fixtures = listFixtures('rules', 'K');
 
 test('every K rule has a fixture', () => {
   const ids = fixtures.map((name) => name.split('-')[0]).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-  assert.deepEqual(ids, ['K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'K10', 'K11', 'K12', 'K13', 'K14', 'K15']);
+  assert.deepEqual(ids, ['K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'K10', 'K11', 'K12', 'K13', 'K14', 'K15', 'K16', 'K17']);
 });
 
 for (const name of fixtures) {
