@@ -5,5 +5,5 @@ import assert from 'node:assert/strict';
 import { VERSION } from '../dist/index.js';
 
 test('the package builds and exports its version', () => {
-  assert.equal(VERSION, '0.1.0');
+  assert.equal(VERSION, '0.1.1');
 });

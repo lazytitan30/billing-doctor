@@ -5,7 +5,7 @@
 // Nothing in this package opens a network connection unless the developer
 // passes --fetch with their own credentials (built last, documented as optional).
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.1';
 
 export {
   SCHEMA_ID,

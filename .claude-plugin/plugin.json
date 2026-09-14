@@ -1,7 +1,7 @@
 {
   "name": "billing-doctor",
   "description": "Diagnose Google Play Billing incidents from a redacted timeline: evidence, Google's rule with a dated link, and the next check. Local, read-only. Not affiliated with Google.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Tekitana d.o.o."
   },

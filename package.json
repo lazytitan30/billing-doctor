@@ -1,6 +1,6 @@
 {
   "name": "billing-doctor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Incident diagnosis for Google Play Billing integrations. Reads a redacted purchase timeline and shows where it broke, with evidence and Google's rule. Runs locally, calls nothing, changes nothing at Google. Not affiliated with Google.",
   "keywords": [
     "google-play-billing",
