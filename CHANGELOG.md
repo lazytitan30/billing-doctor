@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1 (2026-09-14)
+## 0.1.1 (2026-09-16)
 
 What the second measurement found, fixed. On 2026-09-13 the catalogue was scored, frozen, against thirty-five incidents nobody here wrote; it named the cause in twenty, and it also said things about the file rather than the fault. This release is that list.
 
