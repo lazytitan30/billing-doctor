@@ -53,8 +53,12 @@ function run(cwd, cmd, args, input) {
 const sandbox = mkdtempSync(join(tmpdir(), 'billing-doctor-acceptance-'));
 try {
   // 1. Build the artifact that would be published, and install only that.
-  const packed = execFileSync('npm', ['pack', '--pack-destination', sandbox, '--json'], { cwd: root, encoding: 'utf8', shell: win, env });
-  const tarball = join(sandbox, JSON.parse(packed)[0].filename);
+  // npm 10 and 11 print `npm pack --json` as an array with one entry; npm 12
+  // prints an object keyed by package name. Both are read, since the release
+  // workflow's npm and a contributor's npm need not agree.
+  const packedJson = JSON.parse(execFileSync('npm', ['pack', '--pack-destination', sandbox, '--json'], { cwd: root, encoding: 'utf8', shell: win, env }));
+  const packed = Array.isArray(packedJson) ? packedJson[0] : Object.values(packedJson)[0];
+  const tarball = join(sandbox, packed.filename);
   writeFileSync(join(sandbox, 'package.json'), JSON.stringify({ name: 'acceptance', private: true }));
   const install = run(sandbox, 'npm', ['install', '--no-audit', '--no-fund', tarball]);
   check('the packed tarball installs into an empty project', install.code === 0, install.code === 0 ? '' : install.out.slice(-200));

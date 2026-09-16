@@ -83,6 +83,11 @@ jobs:
       # entirely for an OIDC publish, not to leave it empty. The trusted
       # publisher is configured once at npmjs.com, package Settings, Trusted
       # Publisher: lazytitan30 / billing-doctor / release.yml, no environment.
-      - run: npm install -g npm@latest && npm --version
+      # Pinned to a major, not "latest": on 2026-09-16 latest had become npm
+      # 12, whose `npm pack --json` prints a different shape, and the first
+      # v0.1.1 tag failed inside prepublishOnly with nothing published. The
+      # scripts now read both shapes; the pin keeps the next major from being
+      # discovered by a release.
+      - run: npm install -g npm@12 && npm --version
       - name: Publish with provenance
         run: npm publish --provenance --access public

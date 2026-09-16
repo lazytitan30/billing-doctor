@@ -110,13 +110,19 @@ check('internal doc links resolve', broken.length === 0, broken.join(' | '));
 // ---- 7. What the tarball actually contains ------------------------------
 // Source, tests and anything secret must not be in it.
 
-const packed = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8', shell: process.platform === 'win32' }));
-const files = packed[0].files.map((f) => f.path);
+// npm 10 and 11 print `npm pack --json` as an array with one entry; npm 12
+// prints an object keyed by package name. The release workflow upgrades npm
+// for trusted publishing, and on 2026-09-16 "latest" had become 12: the first
+// tag's publish died here, reading [0] of an object, with nothing published.
+const packedJson = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8', shell: process.platform === 'win32' }));
+const packed = Array.isArray(packedJson) ? packedJson[0] : Object.values(packedJson)[0];
+check('npm pack --json answered in a shape this script reads', Array.isArray(packed?.files), packed ? Object.keys(packed).join(', ') : typeof packedJson);
+const files = (packed?.files ?? []).map((f) => f.path);
 const forbidden = files.filter((f) => /^(src|tests|node_modules)\//.test(f) || /(^|\/)\.env|\.npmrc$/.test(f));
 check('no source, tests or secrets in the tarball', forbidden.length === 0, forbidden.slice(0, 5).join(', '));
 check('tarball carries the compiled entry point', files.includes('dist/cli.js') && files.includes('dist/index.js'));
 check('tarball carries the licence', files.includes('LICENSE'));
-check('tarball size is sane', packed[0].size < 5_000_000, `${Math.round(packed[0].size / 1000)} kB, ${files.length} files`);
+check('tarball size is sane', (packed?.size ?? Infinity) < 5_000_000, `${Math.round((packed?.size ?? 0) / 1000)} kB, ${files.length} files`);
 
 // ---- 7b. The bin must run on macOS and Linux when built on Windows --------
 // The kernel hands `#!/usr/bin/env node\r` to env as a program called "node\r"
